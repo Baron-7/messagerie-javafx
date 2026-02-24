@@ -12,8 +12,20 @@ import java.util.List;
 // TODO (Personne B) : service qui gère l'envoi et la réception des messages
 public class MessageService {
 
-    private MessageDAO messageDAO = new MessageDAO();
-    private UserDAO userDAO = new UserDAO();
+    private MessageDAO messageDAO;
+    private UserDAO userDAO;
+
+    // Constructeur de production
+    public MessageService() {
+        this.messageDAO = new MessageDAO();
+        this.userDAO = new UserDAO();
+    }
+
+    // Constructeur pour les tests (injection de dépendances)
+    public MessageService(MessageDAO messageDAO, UserDAO userDAO) {
+        this.messageDAO = messageDAO;
+        this.userDAO = userDAO;
+    }
 
     // Envoie un message d'un utilisateur à un autre
     public Message sendMessage(User sender, String usernameDestinataire, String contenu) throws Exception {
