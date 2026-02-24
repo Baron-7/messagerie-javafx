@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- TODO (Personne B) : améliorer cette interface de chat -->
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.messagerie.controller.ChatController"
+            style="-fx-background-color: #f0f4f8;">
+
+    <!-- Liste des utilisateurs en ligne (à gauche) -->
+    <left>
+        <VBox style="-fx-padding: 10; -fx-min-width: 180; -fx-background-color: #dbeafe; -fx-border-color: #bfdbfe; -fx-border-width: 0 1 0 0;">
+            <Label text="Utilisateurs en ligne"
+                   style="-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #1e40af; -fx-padding: 0 0 8 0;"/>
+            <ListView fx:id="listeUtilisateurs"
+                      onMouseClicked="#selectionnerUtilisateur"
+                      VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </left>
+
+    <!-- Zone de conversation (au centre) -->
+    <center>
+        <VBox spacing="8" style="-fx-padding: 12;">
+            <TextArea fx:id="zoneConversation"
+                      editable="false"
+                      VBox.vgrow="ALWAYS"
+                      promptText="Sélectionnez un utilisateur pour voir la conversation..."
+                      style="-fx-font-size: 13;"/>
+            <HBox spacing="8">
+                <TextField fx:id="champSaisie"
+                           promptText="Écrivez votre message..."
+                           HBox.hgrow="ALWAYS"/>
+                <Button text="Envoyer"
+                        onAction="#envoyerMessage"
+                        styleClass="btn-primary"/>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
