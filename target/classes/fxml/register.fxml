@@ -5,36 +5,176 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.messagerie.controller.RegisterController"
-      spacing="15"
-      alignment="CENTER"
-      style="-fx-padding: 35; -fx-background-color: #f0f4f8;">
+      spacing="0"
+      alignment="TOP_CENTER"
+      style="-fx-background-color: #f0f7eb;">
 
-    <!-- Titre -->
-    <Text text="Messagerie Instantanée"
-          style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #1e40af;"/>
-    <Text text="Créer un compte"
-          style="-fx-font-size: 14; -fx-fill: #64748b;"/>
+    <!-- En-tête nature -->
+    <HBox style="-fx-background-color: #1b4332; -fx-padding: 18 24; -fx-alignment: center-left; -fx-spacing: 10;">
+        <Label text="🌿" style="-fx-font-size: 22;"/>
+        <VBox spacing="1">
+            <Label text="Messagerie Nature"
+                   style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #d8f3dc;"/>
+            <Label text="Créer votre compte"
+                   style="-fx-font-size: 11; -fx-text-fill: #74c69d;"/>
+        </VBox>
+    </HBox>
 
     <!-- Formulaire -->
-    <VBox spacing="8" maxWidth="280">
-        <Label text="Nom d'utilisateur :"/>
-        <TextField fx:id="champUsername" promptText="Choisissez un username"/>
+    <VBox spacing="10" style="-fx-padding: 20 28 10 28;">
 
-        <Label text="Mot de passe :"/>
-        <PasswordField fx:id="champPassword" promptText="Choisissez un mot de passe"/>
+        <Label text="Nom d'utilisateur"
+               style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+        <TextField fx:id="champUsername"
+                   promptText="Choisissez un username"
+                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #74c69d;
+                          -fx-border-width: 1.5; -fx-padding: 8 12; -fx-font-size: 13;
+                          -fx-background-color: white; -fx-text-fill: #1b4332;"/>
 
-        <Label text="Confirmer le mot de passe :"/>
-        <PasswordField fx:id="champConfirmPassword" promptText="Répétez le mot de passe"/>
+        <Label text="Mot de passe"
+               style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+        <PasswordField fx:id="champPassword"
+                       promptText="Choisissez un mot de passe"
+                       style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #74c69d;
+                              -fx-border-width: 1.5; -fx-padding: 8 12; -fx-font-size: 13;
+                              -fx-background-color: white;"/>
+
+        <Label text="Confirmer le mot de passe"
+               style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+        <PasswordField fx:id="champConfirmPassword"
+                       promptText="Répétez le mot de passe"
+                       style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #74c69d;
+                              -fx-border-width: 1.5; -fx-padding: 8 12; -fx-font-size: 13;
+                              -fx-background-color: white;"/>
     </VBox>
 
-    <!-- Message d'information ou d'erreur -->
-    <Label fx:id="labelMessage" style="-fx-text-fill: red; -fx-font-size: 13; -fx-font-weight: bold;"
-           wrapText="true" maxWidth="340" alignment="CENTER" textAlignment="CENTER"/>
+    <!-- Séparateur -->
+    <Separator style="-fx-background-color: #a8d5a2; -fx-padding: 0 28;"/>
 
-    <!-- Boutons -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="S'inscrire" onAction="#sInscrire" styleClass="btn-primary"/>
-        <Button text="Retour à la connexion" onAction="#retourConnexion" styleClass="btn-secondary"/>
+    <!-- Sélecteur d'avatar emoji -->
+    <VBox spacing="8" style="-fx-padding: 12 28 10 28;">
+
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Choisissez votre avatar"
+                   style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+            <Label fx:id="labelAvatarChoisi"
+                   text="🌿"
+                   style="-fx-font-size: 22; -fx-padding: 0 6;"/>
+        </HBox>
+
+        <!-- Grille d'emojis : 5 colonnes x 4 lignes -->
+        <GridPane hgap="6" vgap="6" alignment="CENTER_LEFT">
+
+            <!-- Ligne 0 : plantes -->
+            <Button text="🌿" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Button text="🌱" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <Button text="🍀" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+            <Button text="🌲" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+            <Button text="🌳" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+
+            <!-- Ligne 1 : arbres & fleurs -->
+            <Button text="🌴" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Button text="🌵" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Button text="🍃" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <Button text="🌺" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            <Button text="🌸" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+
+            <!-- Ligne 2 : animaux -->
+            <Button text="🦋" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Button text="🐢" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <Button text="🐝" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+            <Button text="🦜" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+            <Button text="🐠" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+
+            <!-- Ligne 3 : animaux & ciel -->
+            <Button text="🦊" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Button text="🐺" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+            <Button text="🦁" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+            <Button text="🌙" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+            <Button text="⭐" onAction="#choisirAvatar"
+                    style="-fx-font-size: 18; -fx-background-color: white; -fx-border-color: #a8d5a2;
+                           -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-min-width: 44; -fx-min-height: 38;"
+                    GridPane.columnIndex="4" GridPane.rowIndex="3"/>
+        </GridPane>
+    </VBox>
+
+    <!-- Message de retour -->
+    <Label fx:id="labelMessage"
+           style="-fx-text-fill: #c0392b; -fx-font-size: 12; -fx-font-weight: bold; -fx-padding: 0 28;"
+           wrapText="true" maxWidth="360" alignment="CENTER" textAlignment="CENTER"/>
+
+    <!-- Boutons d'action -->
+    <HBox spacing="12" alignment="CENTER" style="-fx-padding: 10 28 20 28;">
+        <Button text="✔  S'inscrire"
+                onAction="#sInscrire"
+                style="-fx-background-color: #1b4332; -fx-text-fill: #d8f3dc;
+                       -fx-font-weight: bold; -fx-font-size: 13; -fx-cursor: hand;
+                       -fx-background-radius: 8; -fx-padding: 9 22;
+                       -fx-border-color: transparent;"/>
+        <Button text="← Retour"
+                onAction="#retourConnexion"
+                style="-fx-background-color: transparent; -fx-text-fill: #40916c;
+                       -fx-font-size: 13; -fx-cursor: hand;
+                       -fx-background-radius: 8; -fx-padding: 9 22;
+                       -fx-border-color: #40916c; -fx-border-width: 1.5;
+                       -fx-border-radius: 8;"/>
     </HBox>
 
 </VBox>

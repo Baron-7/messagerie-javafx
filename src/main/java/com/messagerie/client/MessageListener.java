@@ -23,14 +23,16 @@ public class MessageListener implements Runnable {
             Packet paquet;
             while ((paquet = client.recevoirPaquet()) != null) {
 
-                // Si c'est un nouveau message, on le donne au ChatController
                 if (Packet.NEW_MESSAGE.equals(paquet.getType())) {
+                    // Nouveau message entrant : on l'affiche dans le chat
                     Message message = (Message) paquet.getData();
-                    // IMPORTANT : on utilise Platform.runLater() car on est dans un autre thread
-                    // TODO (Personne B) : appeler chatController.afficherMessage(message)
                     javafx.application.Platform.runLater(() -> {
                         chatController.afficherMessage(message);
                     });
+                } else {
+                    // Réponse à une requête (GET_ONLINE_USERS, GET_HISTORY...)
+                    // On la dépose dans la file pour que ChatController la lise
+                    client.mettreEnFile(paquet);
                 }
             }
         } catch (Exception e) {

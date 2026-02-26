@@ -10,8 +10,8 @@ public class AuthService {
 
     private UserDAO userDAO = new UserDAO();
 
-    // Inscription : crée un nouveau compte
-    public User register(String username, String password) throws Exception {
+    // Inscription : crée un nouveau compte avec avatar emoji
+    public User register(String username, String password, String avatar) throws Exception {
 
         // Le username ne doit pas être vide
         if (username == null || username.trim().isEmpty()) {
@@ -31,8 +31,11 @@ public class AuthService {
         // On hache le mot de passe avant de le stocker (RG9)
         String motDePasseHache = PasswordUtil.hash(password);
 
-        // On crée l'utilisateur et on le sauvegarde
+        // On crée l'utilisateur avec son avatar et on le sauvegarde
         User user = new User(username, motDePasseHache);
+        if (avatar != null && !avatar.isEmpty()) {
+            user.setAvatar(avatar);
+        }
         userDAO.save(user);
 
         return user;

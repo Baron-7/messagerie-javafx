@@ -56,4 +56,15 @@ public class UserDAO {
         tx.commit();
         session.close();
     }
+
+    // Remet tous les utilisateurs OFFLINE (appelé au démarrage du serveur)
+    public void resetAllUsersOffline() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        session.createQuery("UPDATE User SET status = :status")
+                .setParameter("status", UserStatus.OFFLINE)
+                .executeUpdate();
+        tx.commit();
+        session.close();
+    }
 }

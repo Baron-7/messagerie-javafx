@@ -1,5 +1,8 @@
 package com.messagerie.server;
 
+import com.messagerie.dao.UserDAO;
+import com.messagerie.util.HibernateUtil;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -24,6 +27,14 @@ public class Server {
     // Démarre le serveur
     public void demarrer() {
         try {
+            // Initialise Hibernate au démarrage → crée les tables si elles n'existent pas
+            HibernateUtil.getSessionFactory();
+            logger.logInfo("Base de données initialisée (tables prêtes).");
+
+            // Remet tous les utilisateurs OFFLINE (cas d'un arrêt brutal du serveur)
+            new UserDAO().resetAllUsersOffline();
+            logger.logInfo("Statuts utilisateurs réinitialisés à OFFLINE.");
+
             ServerSocket serverSocket = new ServerSocket(PORT);
             logger.logInfo("Serveur démarré sur le port " + PORT);
             logger.logInfo("En attente de connexions...");

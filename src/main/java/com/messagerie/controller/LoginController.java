@@ -62,7 +62,7 @@ public class LoginController {
     public void allerInscription() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
-            Scene scene = new Scene(loader.load(), 420, 370);
+            Scene scene = new Scene(loader.load(), 440, 560);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             Stage stage = (Stage) champUsername.getScene().getWindow();
             stage.setTitle("Messagerie - Inscription");

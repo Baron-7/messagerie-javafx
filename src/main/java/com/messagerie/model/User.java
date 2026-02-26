@@ -27,6 +27,10 @@ public class User implements Serializable {
     // Date de création du compte
     private LocalDateTime dateCreation;
 
+    // Emoji avatar du profil (ex: 🌿, 🦋...)
+    @Column(length = 10)
+    private String avatar;
+
     // Constructeur vide obligatoire pour Hibernate
     public User() {}
 
@@ -36,6 +40,7 @@ public class User implements Serializable {
         this.password = password;
         this.status = UserStatus.OFFLINE;
         this.dateCreation = LocalDateTime.now();
+        this.avatar = "🌿";
     }
 
     // --- Getters et Setters ---
@@ -74,6 +79,14 @@ public class User implements Serializable {
 
     public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
+    }
+
+    public String getAvatar() {
+        return avatar != null ? avatar : "🌿";
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     @Override

@@ -12,6 +12,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // Gère la connexion avec un seul client dans un thread séparé (RG11)
 public class ClientHandler implements Runnable {
@@ -68,9 +69,10 @@ public class ClientHandler implements Runnable {
                 break;
 
             case Packet.REGISTER:
-                // Les données sont [username, password]
+                // Les données sont [username, password, avatar]
                 String[] registerData = (String[]) paquet.getData();
-                gererRegister(registerData[0], registerData[1]);
+                String avatarReg = registerData.length > 2 ? registerData[2] : "🌿";
+                gererRegister(registerData[0], registerData[1], avatarReg);
                 break;
 
             case Packet.LOGOUT:
@@ -130,12 +132,12 @@ public class ClientHandler implements Runnable {
     }
 
     // Gère l'inscription d'un utilisateur
-    private void gererRegister(String username, String password) {
+    private void gererRegister(String username, String password, String avatar) {
         Packet reponse = new Packet();
         reponse.setType(Packet.RESPONSE);
 
         try {
-            User u = authService.register(username, password);
+            User u = authService.register(username, password, avatar);
             reponse.setSuccess(true);
             reponse.setMessage("Inscription réussie ! Vous pouvez vous connecter.");
             reponse.setData(u);
@@ -198,13 +200,16 @@ public class ClientHandler implements Runnable {
         envoyerAuClient(reponse);
     }
 
-    // Gère la liste des utilisateurs connectés
+    // Gère la liste des utilisateurs connectés (retourne les objets User avec leur avatar)
     private void gererUtilisateursEnLigne() {
         Packet reponse = new Packet();
         reponse.setType(Packet.RESPONSE);
         reponse.setSuccess(true);
-        // On retourne la liste des noms des clients connectés
-        reponse.setData(clientsActifs.keySet().toArray(new String[0]));
+        User[] users = clientsActifs.values().stream()
+                .map(ClientHandler::getUser)
+                .filter(u -> u != null)
+                .toArray(User[]::new);
+        reponse.setData(users);
         envoyerAuClient(reponse);
     }
 

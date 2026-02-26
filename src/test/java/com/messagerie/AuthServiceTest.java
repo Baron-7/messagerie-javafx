@@ -17,7 +17,7 @@ public class AuthServiceTest {
     public void testInscriptionReussie() throws Exception {
         // On crée un username unique à chaque fois grâce au timestamp
         String username = "testuser_" + System.currentTimeMillis();
-        User user = authService.register(username, "motdepasse123");
+        User user = authService.register(username, "motdepasse123", "🌿");
         assertNotNull(user);
         assertEquals(username, user.getUsername());
     }
@@ -26,11 +26,11 @@ public class AuthServiceTest {
     @Test
     public void testInscriptionUsernameDejaPris() throws Exception {
         String username = "doublon_" + System.currentTimeMillis();
-        authService.register(username, "motdepasse123");
+        authService.register(username, "motdepasse123", "🌱");
 
         // La deuxième inscription avec le même username doit échouer
         assertThrows(Exception.class, () -> {
-            authService.register(username, "autremotdepasse");
+            authService.register(username, "autremotdepasse", "🍀");
         });
     }
 
@@ -46,7 +46,7 @@ public class AuthServiceTest {
     @Test
     public void testConnexionMauvaisMotDePasse() throws Exception {
         String username = "test_mdp_" + System.currentTimeMillis();
-        authService.register(username, "bonMotDePasse");
+        authService.register(username, "bonMotDePasse", "🦋");
 
         assertThrows(Exception.class, () -> {
             authService.login(username, "mauvaisMotDePasse");

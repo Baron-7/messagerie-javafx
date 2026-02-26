@@ -2,9 +2,11 @@ package com.messagerie.controller;
 
 import com.messagerie.client.Client;
 import com.messagerie.model.Packet;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -17,6 +19,18 @@ public class RegisterController {
     @FXML private PasswordField champPassword;
     @FXML private PasswordField champConfirmPassword;
     @FXML private Label labelMessage;
+    @FXML private Label labelAvatarChoisi;
+
+    // Avatar sélectionné par l'utilisateur (🌿 par défaut)
+    private String avatarChoisi = "🌿";
+
+    // Appelé quand on clique sur un bouton emoji de la grille
+    @FXML
+    public void choisirAvatar(ActionEvent event) {
+        Button btn = (Button) event.getSource();
+        avatarChoisi = btn.getText();
+        labelAvatarChoisi.setText(avatarChoisi);
+    }
 
     // Quand on clique sur "S'inscrire"
     @FXML
@@ -27,40 +41,39 @@ public class RegisterController {
 
         // Vérifications de base
         if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            labelMessage.setText("Veuillez remplir tous les champs.");
+            afficherErreur("Veuillez remplir tous les champs.");
             return;
         }
 
         // Les deux mots de passe doivent être identiques
         if (!password.equals(confirmPassword)) {
-            labelMessage.setText("Les mots de passe ne correspondent pas.");
+            afficherErreur("Les mots de passe ne correspondent pas.");
             return;
         }
 
         try {
-            // On se connecte au serveur et on envoie la demande d'inscription
+            // On se connecte au serveur et on envoie la demande d'inscription avec l'avatar
             Client client = new Client();
             client.connecter();
 
-            Packet paquet = new Packet(Packet.REGISTER, new String[]{username, password});
+            Packet paquet = new Packet(Packet.REGISTER, new String[]{username, password, avatarChoisi});
             client.envoyerPaquet(paquet);
 
             // On attend la réponse
             Packet reponse = client.recevoirPaquet();
-            client.fermer(); // on ferme la connexion après l'inscription
+            client.fermer();
 
             if (reponse.isSuccess()) {
-                // Inscription réussie : on affiche un message vert et on revient à la connexion
-                labelMessage.setStyle("-fx-text-fill: green; -fx-font-size: 13; -fx-font-weight: bold;");
-                labelMessage.setText("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+                labelMessage.setStyle(
+                    "-fx-text-fill: #2d6a4f; -fx-font-size: 12; -fx-font-weight: bold; -fx-padding: 0 28;"
+                );
+                labelMessage.setText("✔ Inscription réussie ! Vous pouvez maintenant vous connecter.");
             } else {
-                labelMessage.setStyle("-fx-text-fill: red; -fx-font-size: 13; -fx-font-weight: bold;");
-                labelMessage.setText(reponse.getMessage());
+                afficherErreur(reponse.getMessage());
             }
 
         } catch (Exception e) {
-            labelMessage.setStyle("-fx-text-fill: red;");
-            labelMessage.setText("Impossible de se connecter au serveur. Est-il démarré ?");
+            afficherErreur("Impossible de se connecter au serveur. Est-il démarré ?");
         }
     }
 
@@ -69,13 +82,20 @@ public class RegisterController {
     public void retourConnexion() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-            Scene scene = new Scene(loader.load(), 400, 300);
+            Scene scene = new Scene(loader.load(), 420, 340);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             Stage stage = (Stage) champUsername.getScene().getWindow();
             stage.setTitle("Messagerie - Connexion");
             stage.setScene(scene);
         } catch (Exception e) {
-            labelMessage.setText("Erreur de navigation.");
+            afficherErreur("Erreur de navigation.");
         }
+    }
+
+    private void afficherErreur(String message) {
+        labelMessage.setStyle(
+            "-fx-text-fill: #6b2737; -fx-font-size: 12; -fx-font-weight: bold; -fx-padding: 0 28;"
+        );
+        labelMessage.setText(message);
     }
 }
