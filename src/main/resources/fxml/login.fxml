@@ -5,32 +5,80 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.messagerie.controller.LoginController"
-      spacing="15"
-      alignment="CENTER"
-      style="-fx-padding: 35; -fx-background-color: #f0f4f8;">
+      spacing="0"
+      alignment="TOP_CENTER"
+      style="-fx-background-color: #f0f7eb;">
 
-    <!-- Titre -->
-    <Text text="Messagerie Instantanée"
-          style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #1e40af;"/>
-    <Text text="Connexion"
-          style="-fx-font-size: 14; -fx-fill: #64748b;"/>
+    <!-- En-tête nature -->
+    <HBox style="-fx-background-color: #1b4332; -fx-padding: 18 24; -fx-alignment: center-left; -fx-spacing: 10;">
+        <Label text="🌿" style="-fx-font-size: 22;"/>
+        <VBox spacing="1">
+            <Label text="Messagerie Nature"
+                   style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #d8f3dc;"/>
+            <Label text="Connexion à votre compte"
+                   style="-fx-font-size: 11; -fx-text-fill: #74c69d;"/>
+        </VBox>
+    </HBox>
 
     <!-- Formulaire -->
-    <VBox spacing="8" maxWidth="280">
-        <Label text="Nom d'utilisateur :"/>
-        <TextField fx:id="champUsername" promptText="Entrez votre username"/>
+    <VBox spacing="10" style="-fx-padding: 22 28 12 28;">
 
-        <Label text="Mot de passe :"/>
-        <PasswordField fx:id="champPassword" promptText="Entrez votre mot de passe"/>
+        <Label text="Nom d'utilisateur"
+               style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+        <TextField fx:id="champUsername"
+                   promptText="Entrez votre username"
+                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #74c69d;
+                          -fx-border-width: 1.5; -fx-padding: 8 12; -fx-font-size: 13;
+                          -fx-background-color: white; -fx-text-fill: #1b4332;"/>
+
+        <Label text="Mot de passe"
+               style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+        <PasswordField fx:id="champPassword"
+                       promptText="Entrez votre mot de passe"
+                       style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #74c69d;
+                              -fx-border-width: 1.5; -fx-padding: 8 12; -fx-font-size: 13;
+                              -fx-background-color: white;"/>
+
+        <!-- Séparateur -->
+        <Separator style="-fx-background-color: #a8d5a2; -fx-padding: 2 0;"/>
+
+        <!-- Adresse du serveur -->
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="🖥"  style="-fx-font-size: 13;"/>
+            <Label text="Adresse du serveur"
+                   style="-fx-font-size: 12; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;"/>
+        </HBox>
+        <TextField fx:id="champServeur"
+                   text="localhost"
+                   promptText="ex: 192.168.1.10 ou localhost"
+                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #a8d5a2;
+                          -fx-border-width: 1.5; -fx-padding: 8 12; -fx-font-size: 12;
+                          -fx-background-color: #f8fff8; -fx-text-fill: #40916c;"/>
+        <Label text="💡 Laissez 'localhost' si vous êtes le serveur. Sinon entrez l'IP du serveur."
+               style="-fx-font-size: 10; -fx-text-fill: #74c69d; -fx-wrap-text: true;"
+               wrapText="true"/>
     </VBox>
 
     <!-- Message d'erreur -->
-    <Label fx:id="labelErreur" style="-fx-text-fill: red; -fx-font-size: 12;"/>
+    <Label fx:id="labelErreur"
+           style="-fx-text-fill: #6b2737; -fx-font-size: 12; -fx-font-weight: bold; -fx-padding: 0 28;"
+           wrapText="true" maxWidth="380"/>
 
     <!-- Boutons -->
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Se connecter" onAction="#seConnecter" styleClass="btn-primary"/>
-        <Button text="S'inscrire" onAction="#allerInscription" styleClass="btn-secondary"/>
+    <HBox spacing="12" alignment="CENTER" style="-fx-padding: 14 28 22 28;">
+        <Button text="🔑  Se connecter"
+                onAction="#seConnecter"
+                style="-fx-background-color: #1b4332; -fx-text-fill: #d8f3dc;
+                       -fx-font-weight: bold; -fx-font-size: 13; -fx-cursor: hand;
+                       -fx-background-radius: 8; -fx-padding: 9 20;
+                       -fx-border-color: transparent;"/>
+        <Button text="✏  S'inscrire"
+                onAction="#allerInscription"
+                style="-fx-background-color: transparent; -fx-text-fill: #40916c;
+                       -fx-font-size: 13; -fx-cursor: hand;
+                       -fx-background-radius: 8; -fx-padding: 9 20;
+                       -fx-border-color: #40916c; -fx-border-width: 1.5;
+                       -fx-border-radius: 8;"/>
     </HBox>
 
 </VBox>

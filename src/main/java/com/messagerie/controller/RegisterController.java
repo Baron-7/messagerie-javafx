@@ -24,6 +24,13 @@ public class RegisterController {
     // Avatar sélectionné par l'utilisateur (🌿 par défaut)
     private String avatarChoisi = "🌿";
 
+    // Adresse du serveur transmise depuis LoginController
+    private String serveur = "localhost";
+
+    public void setServeur(String serveur) {
+        this.serveur = (serveur == null || serveur.isEmpty()) ? "localhost" : serveur;
+    }
+
     // Appelé quand on clique sur un bouton emoji de la grille
     @FXML
     public void choisirAvatar(ActionEvent event) {
@@ -52,8 +59,9 @@ public class RegisterController {
         }
 
         try {
-            // On se connecte au serveur et on envoie la demande d'inscription avec l'avatar
+            // On se connecte au serveur (avec l'adresse transmise depuis login)
             Client client = new Client();
+            client.setHost(serveur);
             client.connecter();
 
             Packet paquet = new Packet(Packet.REGISTER, new String[]{username, password, avatarChoisi});
@@ -82,8 +90,13 @@ public class RegisterController {
     public void retourConnexion() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-            Scene scene = new Scene(loader.load(), 420, 340);
+            Scene scene = new Scene(loader.load(), 420, 400);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+
+            // On réaffiche l'adresse du serveur dans le champ
+            LoginController lc = loader.getController();
+            lc.setServeurInitial(serveur);
+
             Stage stage = (Stage) champUsername.getScene().getWindow();
             stage.setTitle("Messagerie - Connexion");
             stage.setScene(scene);

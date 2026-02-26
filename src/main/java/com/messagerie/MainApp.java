@@ -12,7 +12,7 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         // On charge l'écran de connexion au démarrage
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-        Scene scene = new Scene(loader.load(), 400, 300);
+        Scene scene = new Scene(loader.load(), 420, 400);
         scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
         stage.setTitle("Messagerie - Connexion");

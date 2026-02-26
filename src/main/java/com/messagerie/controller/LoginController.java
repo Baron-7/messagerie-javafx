@@ -16,54 +16,66 @@ public class LoginController {
 
     @FXML private TextField champUsername;
     @FXML private PasswordField champPassword;
+    @FXML private TextField champServeur;
     @FXML private Label labelErreur;
+
+    // Permet de pré-remplir l'adresse serveur (appelé depuis RegisterController)
+    public void setServeurInitial(String adresse) {
+        if (champServeur != null && adresse != null && !adresse.isEmpty()) {
+            champServeur.setText(adresse);
+        }
+    }
 
     // Quand on clique sur "Se connecter"
     @FXML
     public void seConnecter() {
         String username = champUsername.getText().trim();
         String password = champPassword.getText();
+        String serveur  = champServeur.getText().trim();
 
-        // Vérification basique des champs
         if (username.isEmpty() || password.isEmpty()) {
             labelErreur.setText("Veuillez remplir tous les champs.");
             return;
         }
 
         try {
-            // On se connecte au serveur
+            // On crée le client avec l'adresse du serveur saisie
             Client client = new Client();
+            client.setHost(serveur.isEmpty() ? "localhost" : serveur);
             client.connecter();
 
-            // On envoie un paquet de connexion
             Packet paquet = new Packet(Packet.LOGIN, new String[]{username, password});
             client.envoyerPaquet(paquet);
 
-            // On attend la réponse du serveur
             Packet reponse = client.recevoirPaquet();
 
             if (reponse.isSuccess()) {
-                // Connexion réussie : on sauvegarde l'utilisateur et on ouvre le chat
                 User user = (User) reponse.getData();
                 client.setCurrentUser(user);
                 ouvrirChat(client);
             } else {
-                // Erreur : on affiche le message
                 labelErreur.setText(reponse.getMessage());
             }
 
         } catch (Exception e) {
-            labelErreur.setText("Impossible de se connecter au serveur. Est-il démarré ?");
+            labelErreur.setText("Impossible de joindre le serveur « " +
+                    (serveur.isEmpty() ? "localhost" : serveur) + " ». Est-il démarré ?");
         }
     }
 
     // Quand on clique sur "S'inscrire" : on va à l'écran d'inscription
+    // On transmet aussi l'adresse du serveur saisie
     @FXML
     public void allerInscription() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
             Scene scene = new Scene(loader.load(), 440, 560);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+
+            // On passe l'adresse serveur au RegisterController
+            RegisterController rc = loader.getController();
+            rc.setServeur(champServeur.getText().trim());
+
             Stage stage = (Stage) champUsername.getScene().getWindow();
             stage.setTitle("Messagerie - Inscription");
             stage.setScene(scene);
@@ -76,15 +88,15 @@ public class LoginController {
     private void ouvrirChat(Client client) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/chat.fxml"));
-            Scene scene = new Scene(loader.load(), 720, 520);
+            Scene scene = new Scene(loader.load(), 860, 580);
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
-            // On passe le client au ChatController
             ChatController chatController = loader.getController();
             chatController.setClient(client);
 
             Stage stage = (Stage) champUsername.getScene().getWindow();
-            stage.setTitle("Messagerie - " + client.getCurrentUser().getUsername());
+            stage.setTitle("Messagerie 🌿 — " + client.getCurrentUser().getAvatar()
+                    + " " + client.getCurrentUser().getUsername());
             stage.setScene(scene);
 
         } catch (Exception e) {

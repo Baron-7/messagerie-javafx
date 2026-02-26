@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 // Cette classe gère la connexion socket vers le serveur
 public class Client {
 
-    private static final String HOST = "localhost"; // adresse du serveur
-    private static final int PORT = 5000;           // port du serveur
+    private String host = "localhost"; // adresse du serveur (modifiable)
+    private static final int PORT = 5000;
 
     private Socket socket;
     private ObjectOutputStream out;
@@ -25,9 +25,14 @@ public class Client {
     // MessageListener est le seul à lire le socket et dépose les réponses ici
     private final LinkedBlockingQueue<Packet> responseQueue = new LinkedBlockingQueue<>();
 
+    // Permet de définir l'adresse IP du serveur avant de se connecter
+    public void setHost(String host) {
+        this.host = host.trim().isEmpty() ? "localhost" : host.trim();
+    }
+
     // Se connecte au serveur
     public void connecter() throws Exception {
-        socket = new Socket(HOST, PORT);
+        socket = new Socket(host, PORT);
         out = new ObjectOutputStream(socket.getOutputStream());
         in  = new ObjectInputStream(socket.getInputStream());
     }
