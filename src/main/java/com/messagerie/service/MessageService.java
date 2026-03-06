@@ -63,6 +63,19 @@ public class MessageService {
         return messageDAO.findConversation(u1, u2);
     }
 
+    // Supprime un message : seul l'expéditeur peut le supprimer
+    public Message deleteMessage(User user, Long messageId) throws Exception {
+        Message message = messageDAO.findById(messageId);
+        if (message == null) {
+            throw new Exception("Message introuvable.");
+        }
+        if (!message.getSender().getId().equals(user.getId())) {
+            throw new Exception("Vous ne pouvez supprimer que vos propres messages.");
+        }
+        messageDAO.delete(messageId);
+        return message;
+    }
+
     // Livre les messages en attente à un utilisateur qui vient de se connecter (RG6)
     public List<Message> deliverPending(User user) {
         List<Message> messagesEnAttente = messageDAO.findPendingMessages(user);

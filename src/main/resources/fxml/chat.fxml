@@ -2,7 +2,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane fx:id="panneauPrincipal"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.messagerie.controller.ChatController"
             prefWidth="860" prefHeight="580"
             style="-fx-background-color: #1b4332;">
@@ -11,24 +12,34 @@
          PANNEAU GAUCHE : contacts
          ═══════════════════════════════════════════════════════ -->
     <left>
-        <VBox prefWidth="230"
+        <VBox fx:id="panneauGauche" prefWidth="230"
               style="-fx-background-color: #f0f7eb;
                      -fx-border-color: #a8d5a2;
                      -fx-border-width: 0 2 0 0;">
 
             <!-- En-tête forêt profonde -->
-            <HBox style="-fx-background-color: #1b4332;
+            <HBox fx:id="enteteGauche"
+                  style="-fx-background-color: #1b4332;
                          -fx-padding: 16 14;
                          -fx-alignment: center-left;
                          -fx-spacing: 8;">
                 <Label text="🌿"
                        style="-fx-font-size: 18;"/>
-                <VBox spacing="1">
+                <VBox spacing="1" HBox.hgrow="ALWAYS">
                     <Label text="Messagerie"
                            style="-fx-font-weight: bold; -fx-font-size: 15; -fx-text-fill: #d8f3dc;"/>
                     <Label text="Nature Chat"
                            style="-fx-font-size: 10; -fx-text-fill: #74c69d;"/>
                 </VBox>
+                <!-- Bouton bascule thème clair/sombre -->
+                <Button fx:id="boutonTheme" text="🌙"
+                        onAction="#toggleTheme"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #d8f3dc;
+                               -fx-font-size: 16;
+                               -fx-cursor: hand;
+                               -fx-border-color: transparent;
+                               -fx-padding: 2 6;"/>
             </HBox>
 
             <!-- Sous-titre contacts -->
@@ -83,10 +94,10 @@
          ZONE CENTRALE : conversation
          ═══════════════════════════════════════════════════════ -->
     <center>
-        <VBox style="-fx-background-color: #e9f5e1;">
+        <VBox fx:id="zoneConversation" style="-fx-background-color: #e9f5e1;">
 
             <!-- En-tête de la conversation -->
-            <HBox style="-fx-background-color: #2d6a4f;
+            <HBox fx:id="enteteConversation" style="-fx-background-color: #2d6a4f;
                          -fx-padding: 12 18;
                          -fx-alignment: center-left;
                          -fx-spacing: 10;"
@@ -120,13 +131,29 @@
                       style="-fx-padding: 14 8;"/>
             </ScrollPane>
 
+            <!-- Indicateur "est en train d'écrire..." -->
+            <Label fx:id="labelFrappe" text=""
+                   visible="false"
+                   style="-fx-font-size: 11; -fx-text-fill: #52b788;
+                          -fx-padding: 0 14 2 14; -fx-font-style: italic;"/>
+
             <!-- Zone de saisie -->
-            <HBox spacing="10"
+            <HBox fx:id="zoneSaisie" spacing="10"
                   style="-fx-padding: 10 14;
                          -fx-background-color: #c8e6c0;
                          -fx-alignment: center-left;
                          -fx-border-color: #a8d5a2;
                          -fx-border-width: 1 0 0 0;">
+                <Button text="📎"
+                        onAction="#choisirFichier"
+                        style="-fx-background-color: #40916c;
+                               -fx-text-fill: #d8f3dc;
+                               -fx-background-radius: 50;
+                               -fx-min-width: 44;
+                               -fx-min-height: 44;
+                               -fx-font-size: 17;
+                               -fx-cursor: hand;
+                               -fx-border-color: transparent;"/>
                 <TextField fx:id="champSaisie"
                            promptText="Écrire un message…"
                            HBox.hgrow="ALWAYS"

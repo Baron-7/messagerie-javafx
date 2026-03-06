@@ -48,6 +48,26 @@ public class MessageDAO {
         return messages;
     }
 
+    // Retourne un message par son identifiant
+    public Message findById(Long id) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Message message = session.get(Message.class, id);
+        session.close();
+        return message;
+    }
+
+    // Supprime un message par son identifiant
+    public void delete(Long id) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        Message message = session.get(Message.class, id);
+        if (message != null) {
+            session.delete(message);
+        }
+        tx.commit();
+        session.close();
+    }
+
     // Change le statut d'un message (ENVOYE -> RECU ou LU)
     public void updateStatus(Long id, MessageStatus statut) {
         Session session = HibernateUtil.getSessionFactory().openSession();

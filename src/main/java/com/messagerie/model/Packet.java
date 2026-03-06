@@ -15,6 +15,11 @@ public class Packet implements Serializable {
     public static final String GET_ONLINE_USERS = "GET_ONLINE_USERS";
     public static final String RESPONSE        = "RESPONSE";       // réponse du serveur
     public static final String NEW_MESSAGE     = "NEW_MESSAGE";    // nouveau message reçu
+    public static final String DELETE_MESSAGE  = "DELETE_MESSAGE"; // demande de suppression
+    public static final String MESSAGE_DELETED = "MESSAGE_DELETED"; // confirmation de suppression
+    public static final String SEND_FILE       = "SEND_FILE";      // envoi d'un fichier
+    public static final String NEW_FILE        = "NEW_FILE";       // fichier reçu
+    public static final String TYPING         = "TYPING";         // indicateur de frappe
 
     private String type;      // type du paquet
     private Object data;      // données transportées

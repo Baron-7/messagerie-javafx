@@ -1,15 +1,20 @@
 package com.messagerie.server;
 
 import com.messagerie.dao.UserDAO;
+import com.messagerie.model.FilePayload;
 import com.messagerie.model.Message;
 import com.messagerie.model.Packet;
 import com.messagerie.model.User;
 import com.messagerie.service.AuthService;
 import com.messagerie.service.MessageService;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -93,6 +98,21 @@ public class ClientHandler implements Runnable {
 
             case Packet.GET_ONLINE_USERS:
                 gererUtilisateursEnLigne();
+                break;
+
+            case Packet.DELETE_MESSAGE:
+                Long messageId = (Long) paquet.getData();
+                gererSuppressionMessage(messageId);
+                break;
+
+            case Packet.SEND_FILE:
+                FilePayload fichier = (FilePayload) paquet.getData();
+                gererEnvoiFichier(fichier);
+                break;
+
+            case Packet.TYPING:
+                String[] typingData = (String[]) paquet.getData();
+                gererIndicateurFrappe(typingData[0], Boolean.parseBoolean(typingData[1]));
                 break;
 
             default:
@@ -211,6 +231,56 @@ public class ClientHandler implements Runnable {
                 .toArray(User[]::new);
         reponse.setData(users);
         envoyerAuClient(reponse);
+    }
+
+    // Relaie l'indicateur de frappe au destinataire
+    private void gererIndicateurFrappe(String receiverUsername, boolean typing) {
+        ClientHandler receiverHandler = clientsActifs.get(receiverUsername);
+        if (receiverHandler != null) {
+            receiverHandler.envoyerAuClient(new Packet(Packet.TYPING,
+                    new String[]{user.getUsername(), String.valueOf(typing)}));
+        }
+    }
+
+    // Gère l'envoi d'un fichier
+    private void gererEnvoiFichier(FilePayload fichier) {
+        try {
+            // Sauvegarder le fichier sur le serveur
+            Path dossier = Paths.get("uploads");
+            Files.createDirectories(dossier);
+            Path destination = dossier.resolve(System.currentTimeMillis() + "_" + fichier.getFilename());
+            Files.write(destination, fichier.getData());
+
+            // Transmettre au destinataire s'il est connecté
+            ClientHandler destinataireHandler = clientsActifs.get(fichier.getReceiverUsername());
+            if (destinataireHandler != null) {
+                destinataireHandler.envoyerAuClient(new Packet(Packet.NEW_FILE, fichier));
+            }
+
+            logger.logMessage(fichier.getSenderUsername(), fichier.getReceiverUsername());
+
+        } catch (IOException e) {
+            System.out.println("Erreur lors de la sauvegarde du fichier : " + e.getMessage());
+        }
+    }
+
+    // Gère la suppression d'un message
+    private void gererSuppressionMessage(Long messageId) {
+        try {
+            Message message = messageService.deleteMessage(user, messageId);
+
+            // Notifier l'expéditeur (confirmation)
+            envoyerAuClient(new Packet(Packet.MESSAGE_DELETED, messageId));
+
+            // Notifier le destinataire s'il est connecté
+            String receiverUsername = message.getReceiver().getUsername();
+            ClientHandler receiverHandler = clientsActifs.get(receiverUsername);
+            if (receiverHandler != null) {
+                receiverHandler.envoyerAuClient(new Packet(Packet.MESSAGE_DELETED, messageId));
+            }
+        } catch (Exception e) {
+            System.out.println("Suppression impossible : " + e.getMessage());
+        }
     }
 
     // Envoie un paquet au client

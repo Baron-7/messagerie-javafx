@@ -1,6 +1,7 @@
 package com.messagerie.client;
 
 import com.messagerie.controller.ChatController;
+import com.messagerie.model.FilePayload;
 import com.messagerie.model.Message;
 import com.messagerie.model.Packet;
 
@@ -29,6 +30,25 @@ public class MessageListener implements Runnable {
                     javafx.application.Platform.runLater(() -> {
                         chatController.afficherMessage(message);
                     });
+                } else if (Packet.MESSAGE_DELETED.equals(paquet.getType())) {
+                    // Message supprimé : on retire la bulle de l'interface
+                    Long messageId = (Long) paquet.getData();
+                    javafx.application.Platform.runLater(() -> {
+                        chatController.supprimerBulle(messageId);
+                    });
+                } else if (Packet.NEW_FILE.equals(paquet.getType())) {
+                    // Fichier reçu : on l'affiche dans le chat
+                    FilePayload fichier = (FilePayload) paquet.getData();
+                    javafx.application.Platform.runLater(() -> {
+                        chatController.afficherFichierRecu(fichier);
+                    });
+                } else if (Packet.TYPING.equals(paquet.getType())) {
+                    // Indicateur de frappe
+                    String[] typingData = (String[]) paquet.getData();
+                    String senderUsername = typingData[0];
+                    boolean typing = Boolean.parseBoolean(typingData[1]);
+                    javafx.application.Platform.runLater(() ->
+                        chatController.afficherIndicateurFrappe(senderUsername, typing));
                 } else {
                     // Réponse à une requête (GET_ONLINE_USERS, GET_HISTORY...)
                     // On la dépose dans la file pour que ChatController la lise
