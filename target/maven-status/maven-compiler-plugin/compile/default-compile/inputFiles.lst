@@ -1,6 +1,7 @@
 C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\controller\RegisterController.java
 C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\model\User.java
 C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\service\AuthService.java
+C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\model\ConversationInfo.java
 C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\controller\LoginController.java
 C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\dao\UserDAO.java
 C:\Users\hp\projet_java_messagerie\messagerie-javafx\src\main\java\com\messagerie\server\ServerLogger.java

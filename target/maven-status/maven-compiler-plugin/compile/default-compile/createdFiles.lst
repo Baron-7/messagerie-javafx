@@ -2,11 +2,14 @@ com\messagerie\model\User.class
 com\messagerie\model\MessageStatus.class
 com\messagerie\client\MessageListener.class
 com\messagerie\model\UserStatus.class
+com\messagerie\controller\ChatController$1.class
 com\messagerie\controller\ChatController.class
 com\messagerie\dao\MessageDAO.class
 com\messagerie\server\Server.class
+com\messagerie\model\FilePayload.class
 com\messagerie\client\Client.class
 com\messagerie\server\ServerLogger.class
+com\messagerie\model\ConversationInfo.class
 com\messagerie\util\HibernateUtil.class
 com\messagerie\model\Packet.class
 com\messagerie\model\Message.class

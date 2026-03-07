@@ -2,6 +2,7 @@ package com.messagerie.controller;
 
 import com.messagerie.client.Client;
 import com.messagerie.client.MessageListener;
+import com.messagerie.model.ConversationInfo;
 import com.messagerie.model.FilePayload;
 import com.messagerie.model.Message;
 import com.messagerie.model.MessageStatus;
@@ -44,7 +45,7 @@ public class ChatController {
     @FXML private VBox zoneConversation;
     @FXML private HBox enteteConversation;
     @FXML private HBox zoneSaisie;
-    @FXML private ListView<User> listeUtilisateurs;
+    @FXML private ListView<ConversationInfo> listeUtilisateurs;
     @FXML private Label labelInterlocuteur;
     @FXML private Label labelFrappe;
     @FXML private Button boutonTheme;
@@ -71,19 +72,49 @@ public class ChatController {
     // Initialisation automatique par JavaFX : configure la cellule de la liste
     @FXML
     public void initialize() {
-        listeUtilisateurs.setCellFactory(lv -> new ListCell<User>() {
+        listeUtilisateurs.setCellFactory(lv -> new ListCell<ConversationInfo>() {
             @Override
-            protected void updateItem(User user, boolean empty) {
-                super.updateItem(user, empty);
-                if (empty || user == null) {
+            protected void updateItem(ConversationInfo ci, boolean empty) {
+                super.updateItem(ci, empty);
+                if (empty || ci == null) {
+                    setGraphic(null);
                     setText(null);
-                    setStyle("");
+                    setStyle("-fx-background-color: transparent;");
                 } else {
-                    setText(user.getAvatar() + "  " + user.getUsername());
-                    setStyle(
-                        "-fx-font-size: 13; -fx-text-fill: #1b4332; -fx-padding: 8 12;" +
-                        "-fx-background-color: transparent;"
-                    );
+                    // Ligne du haut : point en ligne + avatar + nom + badge non lus
+                    HBox top = new HBox(6);
+                    top.setAlignment(Pos.CENTER_LEFT);
+
+                    Label dot = new Label(ci.isOnline() ? "🟢" : "⚫");
+                    dot.setStyle("-fx-font-size: 8;");
+
+                    Label nom = new Label(ci.getPartner().getAvatar() + "  " + ci.getPartner().getUsername());
+                    nom.setStyle("-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1b4332;");
+                    javafx.scene.layout.HBox.setHgrow(nom, javafx.scene.layout.Priority.ALWAYS);
+                    nom.setMaxWidth(Double.MAX_VALUE);
+
+                    top.getChildren().addAll(dot, nom);
+
+                    if (ci.getUnreadCount() > 0) {
+                        Label badge = new Label(String.valueOf(ci.getUnreadCount()));
+                        badge.setStyle("-fx-background-color: #40916c; -fx-text-fill: white;" +
+                            "-fx-background-radius: 10; -fx-padding: 1 6; -fx-font-size: 10;");
+                        top.getChildren().add(badge);
+                    }
+
+                    // Ligne du bas : aperçu du dernier message
+                    String preview = ci.getLastMessage() != null ? ci.getLastMessage() : "";
+                    if (preview.length() > 32) preview = preview.substring(0, 29) + "...";
+                    Label lastMsg = new Label(preview);
+                    lastMsg.setStyle("-fx-font-size: 11; -fx-text-fill: #52b788;");
+
+                    VBox cell = new VBox(2);
+                    cell.getChildren().addAll(top, lastMsg);
+                    cell.setStyle("-fx-padding: 8 12;");
+
+                    setGraphic(cell);
+                    setText(null);
+                    setStyle("-fx-background-color: transparent;");
                 }
             }
         });
@@ -169,8 +200,8 @@ public class ChatController {
         listenerThread.setDaemon(true);
         listenerThread.start();
 
-        // Charger les utilisateurs dans un thread séparé (utilise la file)
-        new Thread(this::chargerUtilisateursEnLigne).start();
+        // Charger toutes les conversations au démarrage
+        new Thread(this::chargerConversations).start();
     }
 
     // Crée une bulle de message style nature
@@ -288,6 +319,8 @@ public class ChatController {
                 scrollVersLeBas();
             }
         });
+        // Mettre à jour l'aperçu du dernier message dans la sidebar
+        new Thread(this::chargerConversations).start();
     }
 
     // Passe tous les ✓✓ en bleu quand le destinataire a lu les messages (appelé par MessageListener)
@@ -323,8 +356,8 @@ public class ChatController {
     // Ouvre un sélecteur de fichier et envoie le fichier choisi
     @FXML
     public void choisirFichier() {
-        User destinataireUser = listeUtilisateurs.getSelectionModel().getSelectedItem();
-        if (destinataireUser == null) return;
+        ConversationInfo ciChoisi = listeUtilisateurs.getSelectionModel().getSelectedItem();
+        if (ciChoisi == null) return;
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir un fichier à envoyer");
@@ -343,7 +376,7 @@ public class ChatController {
 
         try {
             byte[] data = Files.readAllBytes(fichier.toPath());
-            String receiver = destinataireUser.getUsername();
+            String receiver = ciChoisi.getPartner().getUsername();
             FilePayload payload = new FilePayload(fichier.getName(), data,
                     client.getCurrentUser().getUsername(), receiver);
 
@@ -447,12 +480,12 @@ public class ChatController {
     @FXML
     public void envoyerMessage() {
         String contenu = champSaisie.getText().trim();
-        User destinataireUser = listeUtilisateurs.getSelectionModel().getSelectedItem();
+        ConversationInfo ciChoisi = listeUtilisateurs.getSelectionModel().getSelectedItem();
 
-        if (contenu.isEmpty() || destinataireUser == null) return;
+        if (contenu.isEmpty() || ciChoisi == null) return;
 
         try {
-            String destinataire = destinataireUser.getUsername();
+            String destinataire = ciChoisi.getPartner().getUsername();
             Packet paquet = new Packet(Packet.SEND_MESSAGE, new String[]{destinataire, contenu});
             client.envoyerPaquet(paquet);
 
@@ -464,6 +497,8 @@ public class ChatController {
             // Stopper l'indicateur de frappe
             pauseFrappe.stop();
             envoyerIndicateurFrappe(false);
+            // Rafraîchir la liste des conversations (mise à jour du dernier message)
+            new Thread(this::chargerConversations).start();
         } catch (Exception e) {
             Label erreur = new Label("[Erreur d'envoi]");
             erreur.setStyle("-fx-text-fill: #6b2737;");
@@ -473,21 +508,21 @@ public class ChatController {
         }
     }
 
-    // Quand on sélectionne un utilisateur dans la liste
+    // Quand on sélectionne une conversation dans la liste
     @FXML
     public void selectionnerUtilisateur() {
-        User utilisateurChoisi = listeUtilisateurs.getSelectionModel().getSelectedItem();
-        if (utilisateurChoisi != null) {
-            interlocuteurActuel = utilisateurChoisi.getUsername();
-            labelInterlocuteur.setText(utilisateurChoisi.getAvatar() + "  " + utilisateurChoisi.getUsername());
-            chargerHistorique(utilisateurChoisi.getUsername());
+        ConversationInfo ci = listeUtilisateurs.getSelectionModel().getSelectedItem();
+        if (ci != null) {
+            interlocuteurActuel = ci.getPartner().getUsername();
+            labelInterlocuteur.setText(ci.getPartner().getAvatar() + "  " + ci.getPartner().getUsername());
+            chargerHistorique(ci.getPartner().getUsername());
         }
     }
 
-    // Bouton Rafraîchir : recharge la liste des utilisateurs en ligne
+    // Bouton Rafraîchir : recharge toutes les conversations
     @FXML
     public void rafraichirUtilisateurs() {
-        new Thread(this::chargerUtilisateursEnLigne).start();
+        new Thread(this::chargerConversations).start();
     }
 
     // Bouton Déconnexion : envoie LOGOUT au serveur et retourne à l'écran de connexion
@@ -512,44 +547,35 @@ public class ChatController {
         }
     }
 
-    // Met à jour la liste des contacts en ligne (appelé par MessageListener via USERS_UPDATED)
+    // Met à jour le statut en ligne dans la liste des conversations (appelé via USERS_UPDATED)
     public void mettreAJourListeUtilisateurs(User[] utilisateurs) {
-        String moi = client.getCurrentUser().getUsername();
-        listeUtilisateurs.getItems().clear();
-        for (User u : utilisateurs) {
-            if (!u.getUsername().equals(moi)) {
-                listeUtilisateurs.getItems().add(u);
-            }
+        java.util.Set<String> onlineUsernames = new java.util.HashSet<>();
+        for (User u : utilisateurs) onlineUsernames.add(u.getUsername());
+
+        // Mettre à jour le point 🟢/⚫ pour chaque conversation de la liste
+        // Les utilisateurs absents de USERS_UPDATED sont hors-ligne
+        for (ConversationInfo ci : listeUtilisateurs.getItems()) {
+            ci.setOnline(onlineUsernames.contains(ci.getPartner().getUsername()));
         }
-        // Si l'interlocuteur actuel est en ligne, passer automatiquement ses ✓✓ en bleu
-        if (interlocuteurActuel != null) {
-            for (User u : utilisateurs) {
-                if (u.getUsername().equals(interlocuteurActuel)) {
-                    marquerMessagesLus(interlocuteurActuel);
-                    break;
-                }
-            }
+        listeUtilisateurs.refresh();
+
+        // Si l'interlocuteur actuel est en ligne, passer ses ✓✓ en bleu automatiquement
+        if (interlocuteurActuel != null && onlineUsernames.contains(interlocuteurActuel)) {
+            marquerMessagesLus(interlocuteurActuel);
         }
     }
 
-    // Charge la liste des utilisateurs en ligne avec leurs avatars
-    private void chargerUtilisateursEnLigne() {
+    // Charge toutes les conversations (tous les utilisateurs + dernier message + statut en ligne)
+    private void chargerConversations() {
         try {
-            client.envoyerPaquet(new Packet(Packet.GET_ONLINE_USERS, null));
+            client.envoyerPaquet(new Packet(Packet.GET_CONVERSATIONS, null));
             Packet reponse = client.attendreReponse();
             if (reponse.isSuccess()) {
-                User[] utilisateurs = (User[]) reponse.getData();
-                Platform.runLater(() -> {
-                    listeUtilisateurs.getItems().clear();
-                    for (User u : utilisateurs) {
-                        if (!u.getUsername().equals(client.getCurrentUser().getUsername())) {
-                            listeUtilisateurs.getItems().add(u);
-                        }
-                    }
-                });
+                ConversationInfo[] convs = (ConversationInfo[]) reponse.getData();
+                Platform.runLater(() -> listeUtilisateurs.getItems().setAll(convs));
             }
         } catch (Exception e) {
-            System.out.println("Impossible de charger les utilisateurs en ligne.");
+            System.out.println("Impossible de charger les conversations.");
         }
     }
 
@@ -563,6 +589,8 @@ public class ChatController {
                     java.util.List<Message> historique = (java.util.List<Message>) reponse.getData();
                     // Signaler au serveur que les messages de cet interlocuteur sont lus
                     client.envoyerPaquet(new Packet(Packet.MARK_READ, username));
+                    // Remettre le compteur de non-lus à 0 dans la sidebar
+                    new Thread(this::chargerConversations).start();
                     Platform.runLater(() -> {
                         zoneMessages.getChildren().clear();
                         mapStatutLabels.clear();

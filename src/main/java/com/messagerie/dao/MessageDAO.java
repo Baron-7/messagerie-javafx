@@ -1,5 +1,6 @@
 package com.messagerie.dao;
 
+import com.messagerie.model.ConversationInfo;
 import com.messagerie.model.Message;
 import com.messagerie.model.MessageStatus;
 import com.messagerie.model.User;
@@ -81,6 +82,61 @@ public class MessageDAO {
                 .executeUpdate();
         tx.commit();
         session.close();
+    }
+
+    // Retourne uniquement les conversations ayant eu lieu (au moins un message échangé)
+    // triées par date du dernier message décroissante
+    public List<ConversationInfo> findConversationSummaries(User me) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            // Partenaires qui m'ont envoyé au moins un message
+            List<User> received = session.createQuery(
+                    "SELECT DISTINCT m.sender FROM Message m WHERE m.receiver = :me", User.class)
+                    .setParameter("me", me).list();
+
+            // Partenaires à qui j'ai envoyé au moins un message
+            List<User> sent = session.createQuery(
+                    "SELECT DISTINCT m.receiver FROM Message m WHERE m.sender = :me", User.class)
+                    .setParameter("me", me).list();
+
+            java.util.Set<User> partners = new java.util.HashSet<>(received);
+            partners.addAll(sent);
+
+            List<ConversationInfo> result = new java.util.ArrayList<>();
+            for (User partner : partners) {
+                // Dernier message échangé avec ce partenaire
+                Message last = session.createQuery(
+                        "FROM Message m WHERE (m.sender = :me AND m.receiver = :p) " +
+                        "OR (m.sender = :p AND m.receiver = :me) ORDER BY m.dateEnvoi DESC",
+                        Message.class)
+                        .setParameter("me", me)
+                        .setParameter("p", partner)
+                        .setMaxResults(1)
+                        .uniqueResult();
+
+                // Nombre de messages non lus reçus de ce partenaire
+                Long unread = session.createQuery(
+                        "SELECT COUNT(m) FROM Message m " +
+                        "WHERE m.sender = :p AND m.receiver = :me AND m.statut != :lu",
+                        Long.class)
+                        .setParameter("p", partner)
+                        .setParameter("me", me)
+                        .setParameter("lu", MessageStatus.LU)
+                        .uniqueResult();
+
+                if (last != null) {
+                    result.add(new ConversationInfo(
+                        partner, last.getContenu(), last.getDateEnvoi(), unread.intValue()));
+                }
+            }
+
+            // Trier par date du dernier message décroissante
+            result.sort((a, b) -> b.getLastDate().compareTo(a.getLastDate()));
+
+            return result;
+        } finally {
+            session.close();
+        }
     }
 
     // Change le statut d'un message (ENVOYE -> RECU ou LU)

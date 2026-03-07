@@ -1,6 +1,7 @@
 package com.messagerie.server;
 
 import com.messagerie.dao.UserDAO;
+import com.messagerie.model.ConversationInfo;
 import com.messagerie.model.FilePayload;
 import com.messagerie.model.Message;
 import com.messagerie.model.Packet;
@@ -118,6 +119,10 @@ public class ClientHandler implements Runnable {
             case Packet.MARK_READ:
                 String senderUsername = (String) paquet.getData();
                 gererMarquageLu(senderUsername);
+                break;
+
+            case Packet.GET_CONVERSATIONS:
+                gererConversations();
                 break;
 
             default:
@@ -238,6 +243,25 @@ public class ClientHandler implements Runnable {
         reponse.setType(Packet.RESPONSE);
         reponse.setSuccess(true);
         reponse.setData(collecterUtilisateursEnLigne());
+        envoyerAuClient(reponse);
+    }
+
+    // Retourne le résumé de toutes les conversations (tous les utilisateurs + dernier message)
+    private void gererConversations() {
+        Packet reponse = new Packet();
+        reponse.setType(Packet.RESPONSE);
+        try {
+            List<ConversationInfo> conversations = messageService.getConversationSummaries(user);
+            // Marquer qui est actuellement en ligne
+            for (ConversationInfo ci : conversations) {
+                ci.setOnline(clientsActifs.containsKey(ci.getPartner().getUsername()));
+            }
+            reponse.setSuccess(true);
+            reponse.setData(conversations.toArray(new ConversationInfo[0]));
+        } catch (Exception e) {
+            reponse.setSuccess(false);
+            reponse.setMessage(e.getMessage());
+        }
         envoyerAuClient(reponse);
     }
 

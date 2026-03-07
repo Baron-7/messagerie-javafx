@@ -42,10 +42,10 @@
                                -fx-padding: 2 6;"/>
             </HBox>
 
-            <!-- Sous-titre contacts -->
+            <!-- Sous-titre conversations -->
             <HBox style="-fx-padding: 10 14 4 14; -fx-alignment: center-left; -fx-spacing: 5;">
                 <Label text="🌱"  style="-fx-font-size: 11;"/>
-                <Label text="Contacts en ligne"
+                <Label text="Conversations"
                        style="-fx-font-size: 11;
                               -fx-text-fill: #2d6a4f;
                               -fx-font-weight: bold;"/>

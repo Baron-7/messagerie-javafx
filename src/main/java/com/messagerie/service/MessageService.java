@@ -2,6 +2,7 @@ package com.messagerie.service;
 
 import com.messagerie.dao.MessageDAO;
 import com.messagerie.dao.UserDAO;
+import com.messagerie.model.ConversationInfo;
 import com.messagerie.model.Message;
 import com.messagerie.model.MessageStatus;
 import com.messagerie.model.User;
@@ -81,6 +82,11 @@ public class MessageService {
         }
         messageDAO.delete(messageId);
         return message;
+    }
+
+    // Retourne le résumé de toutes les conversations (tous les utilisateurs + dernier message)
+    public List<ConversationInfo> getConversationSummaries(User me) {
+        return messageDAO.findConversationSummaries(me);
     }
 
     // Livre les messages en attente à un utilisateur qui vient de se connecter (RG6)

@@ -22,7 +22,8 @@ public class Packet implements Serializable {
     public static final String TYPING         = "TYPING";         // indicateur de frappe
     public static final String MARK_READ      = "MARK_READ";      // marquer messages comme lus
     public static final String MESSAGE_READ   = "MESSAGE_READ";   // confirmation : messages lus
-    public static final String USERS_UPDATED  = "USERS_UPDATED";  // liste des connectés mise à jour
+    public static final String USERS_UPDATED     = "USERS_UPDATED";     // liste des connectés mise à jour
+    public static final String GET_CONVERSATIONS = "GET_CONVERSATIONS"; // résumés des conversations
 
     private String type;      // type du paquet
     private Object data;      // données transportées
