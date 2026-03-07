@@ -115,6 +115,11 @@ public class ClientHandler implements Runnable {
                 gererIndicateurFrappe(typingData[0], Boolean.parseBoolean(typingData[1]));
                 break;
 
+            case Packet.MARK_READ:
+                String senderUsername = (String) paquet.getData();
+                gererMarquageLu(senderUsername);
+                break;
+
             default:
                 System.out.println("Type de paquet inconnu : " + paquet.getType());
         }
@@ -231,6 +236,20 @@ public class ClientHandler implements Runnable {
                 .toArray(User[]::new);
         reponse.setData(users);
         envoyerAuClient(reponse);
+    }
+
+    // Marque les messages comme LU et notifie l'expéditeur
+    private void gererMarquageLu(String senderUsername) {
+        try {
+            messageService.markAsRead(user, senderUsername);
+            // Notifier l'expéditeur pour qu'il passe ses ✓✓ en bleu
+            ClientHandler senderHandler = clientsActifs.get(senderUsername);
+            if (senderHandler != null) {
+                senderHandler.envoyerAuClient(new Packet(Packet.MESSAGE_READ, user.getUsername()));
+            }
+        } catch (Exception e) {
+            System.out.println("Erreur lors du marquage en lu : " + e.getMessage());
+        }
     }
 
     // Relaie l'indicateur de frappe au destinataire

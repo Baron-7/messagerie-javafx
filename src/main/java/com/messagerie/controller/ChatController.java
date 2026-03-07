@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatController {
 
@@ -56,6 +58,9 @@ public class ChatController {
 
     // Debounce : arrête l'indicateur 2 s après la dernière frappe
     private final PauseTransition pauseFrappe = new PauseTransition(Duration.seconds(2));
+
+    // Associe chaque ID de message à son label de statut (✓ / ✓✓) pour la mise à jour en bleu
+    private final Map<Long, Label> mapStatutLabels = new HashMap<>();
 
     private static final DateTimeFormatter HEURE_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -199,6 +204,10 @@ public class ChatController {
             Label statutLabel = new Label(getSymboleStatut(message.getStatut()));
             statutLabel.setStyle(getStyleStatut(message.getStatut()));
             pied.getChildren().add(statutLabel);
+            // Mémoriser pour mise à jour en bleu si le message est lu plus tard
+            if (message.getId() != null) {
+                mapStatutLabels.put(message.getId(), statutLabel);
+            }
         }
 
         bulle.getChildren().add(pied);
@@ -253,10 +262,10 @@ public class ChatController {
         return "✓";
     }
 
-    // Vert forêt pour LU, vert grisé pour ENVOYE et RECU
+    // Bleu pour LU (✓✓ lus), vert clair pour ENVOYE/RECU
     private String getStyleStatut(MessageStatus statut) {
         if (statut == MessageStatus.LU) {
-            return "-fx-font-size: 11; -fx-text-fill: #2d6a4f; -fx-font-weight: bold;";
+            return "-fx-font-size: 11; -fx-text-fill: #1a7cde; -fx-font-weight: bold;";
         }
         return "-fx-font-size: 11; -fx-text-fill: #74c69d;";
     }
@@ -275,6 +284,17 @@ public class ChatController {
                 scrollVersLeBas();
             }
         });
+    }
+
+    // Passe tous les ✓✓ en bleu quand le destinataire a lu les messages (appelé par MessageListener)
+    public void marquerMessagesLus(String readerUsername) {
+        if (readerUsername.equals(interlocuteurActuel)) {
+            String styleLu = "-fx-font-size: 11; -fx-text-fill: #1a7cde; -fx-font-weight: bold;";
+            for (Label label : mapStatutLabels.values()) {
+                label.setText("✓✓");
+                label.setStyle(styleLu);
+            }
+        }
     }
 
     // Retire la bulle correspondant au message supprimé (appelé par MessageListener)
@@ -507,8 +527,11 @@ public class ChatController {
                 Packet reponse = client.attendreReponse();
                 if (reponse.isSuccess()) {
                     java.util.List<Message> historique = (java.util.List<Message>) reponse.getData();
+                    // Signaler au serveur que les messages de cet interlocuteur sont lus
+                    client.envoyerPaquet(new Packet(Packet.MARK_READ, username));
                     Platform.runLater(() -> {
                         zoneMessages.getChildren().clear();
+                        mapStatutLabels.clear();
                         String moi = client.getCurrentUser().getUsername();
                         for (Message m : historique) {
                             boolean estMoi = m.getSender().getUsername().equals(moi);

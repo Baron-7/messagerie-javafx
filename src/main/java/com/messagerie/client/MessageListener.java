@@ -42,6 +42,11 @@ public class MessageListener implements Runnable {
                     javafx.application.Platform.runLater(() -> {
                         chatController.afficherFichierRecu(fichier);
                     });
+                } else if (Packet.MESSAGE_READ.equals(paquet.getType())) {
+                    // Le destinataire a lu nos messages : passer les ✓✓ en bleu
+                    String readerUsername = (String) paquet.getData();
+                    javafx.application.Platform.runLater(() ->
+                        chatController.marquerMessagesLus(readerUsername));
                 } else if (Packet.TYPING.equals(paquet.getType())) {
                     // Indicateur de frappe
                     String[] typingData = (String[]) paquet.getData();

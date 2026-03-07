@@ -63,6 +63,13 @@ public class MessageService {
         return messageDAO.findConversation(u1, u2);
     }
 
+    // Marque comme LU tous les messages envoyés par senderUsername à reader
+    public void markAsRead(User reader, String senderUsername) throws Exception {
+        User sender = userDAO.findByUsername(senderUsername);
+        if (sender == null) throw new Exception("Utilisateur introuvable.");
+        messageDAO.markConversationAsRead(sender, reader);
+    }
+
     // Supprime un message : seul l'expéditeur peut le supprimer
     public Message deleteMessage(User user, Long messageId) throws Exception {
         Message message = messageDAO.findById(messageId);

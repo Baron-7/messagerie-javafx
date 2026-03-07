@@ -20,6 +20,8 @@ public class Packet implements Serializable {
     public static final String SEND_FILE       = "SEND_FILE";      // envoi d'un fichier
     public static final String NEW_FILE        = "NEW_FILE";       // fichier reçu
     public static final String TYPING         = "TYPING";         // indicateur de frappe
+    public static final String MARK_READ      = "MARK_READ";      // marquer messages comme lus
+    public static final String MESSAGE_READ   = "MESSAGE_READ";   // confirmation : messages lus
 
     private String type;      // type du paquet
     private Object data;      // données transportées

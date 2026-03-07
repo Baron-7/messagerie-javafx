@@ -68,6 +68,21 @@ public class MessageDAO {
         session.close();
     }
 
+    // Marque tous les messages d'un expéditeur vers un destinataire comme LU
+    public void markConversationAsRead(User sender, User receiver) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        session.createQuery(
+                "UPDATE Message SET statut = :lu " +
+                "WHERE sender = :sender AND receiver = :receiver AND statut != :lu")
+                .setParameter("lu", MessageStatus.LU)
+                .setParameter("sender", sender)
+                .setParameter("receiver", receiver)
+                .executeUpdate();
+        tx.commit();
+        session.close();
+    }
+
     // Change le statut d'un message (ENVOYE -> RECU ou LU)
     public void updateStatus(Long id, MessageStatus statut) {
         Session session = HibernateUtil.getSessionFactory().openSession();
