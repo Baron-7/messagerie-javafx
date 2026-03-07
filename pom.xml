@@ -38,6 +38,7 @@
             <version>5.6.15.Final</version>
         </dependency>
 
+
         <!-- Connecteur MySQL -->
         <dependency>
             <groupId>mysql</groupId>
@@ -109,11 +110,14 @@
                 </configuration>
             </plugin>
 
-            <!-- Plugin pour lancer le serveur avec : mvn exec:java -Dexec.mainClass=com.messagerie.server.Server -->
+            <!-- Plugin pour lancer le serveur avec : mvn exec:java -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.messagerie.server.Server</mainClass>
+                </configuration>
             </plugin>
 
         </plugins>
