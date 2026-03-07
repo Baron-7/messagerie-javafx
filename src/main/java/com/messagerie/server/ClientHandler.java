@@ -138,15 +138,6 @@ public class ClientHandler implements Runnable {
             clientsActifs.put(username, this);
             logger.logConnexion(username);
 
-            // Notifier tous les autres clients qu'un nouvel utilisateur est connecté
-            broadcastListeUtilisateurs();
-
-            // On livre les messages en attente (RG6)
-            List<Message> messagesEnAttente = messageService.deliverPending(u);
-            for (Message m : messagesEnAttente) {
-                envoyerAuClient(new Packet(Packet.NEW_MESSAGE, m));
-            }
-
             reponse.setSuccess(true);
             reponse.setMessage("Connexion réussie !");
             reponse.setData(u);
@@ -156,7 +147,20 @@ public class ClientHandler implements Runnable {
             reponse.setMessage(e.getMessage());
         }
 
+        // On envoie la réponse EN PREMIER pour que le client puisse ouvrir le chat
+        // et démarrer le MessageListener avant de recevoir les notifications push
         envoyerAuClient(reponse);
+
+        if (reponse.isSuccess()) {
+            // Notifier tous les clients qu'un nouvel utilisateur est connecté
+            broadcastListeUtilisateurs();
+
+            // On livre les messages en attente (RG6) — le MessageListener est maintenant prêt
+            List<Message> messagesEnAttente = messageService.deliverPending(user);
+            for (Message m : messagesEnAttente) {
+                envoyerAuClient(new Packet(Packet.NEW_MESSAGE, m));
+            }
+        }
     }
 
     // Gère l'inscription d'un utilisateur
