@@ -356,8 +356,7 @@ public class ChatController {
     // Ouvre un sélecteur de fichier et envoie le fichier choisi
     @FXML
     public void choisirFichier() {
-        ConversationInfo ciChoisi = listeUtilisateurs.getSelectionModel().getSelectedItem();
-        if (ciChoisi == null) return;
+        if (interlocuteurActuel == null) return;
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir un fichier à envoyer");
@@ -376,7 +375,7 @@ public class ChatController {
 
         try {
             byte[] data = Files.readAllBytes(fichier.toPath());
-            String receiver = ciChoisi.getPartner().getUsername();
+            String receiver = interlocuteurActuel;
             FilePayload payload = new FilePayload(fichier.getName(), data,
                     client.getCurrentUser().getUsername(), receiver);
 
@@ -480,12 +479,11 @@ public class ChatController {
     @FXML
     public void envoyerMessage() {
         String contenu = champSaisie.getText().trim();
-        ConversationInfo ciChoisi = listeUtilisateurs.getSelectionModel().getSelectedItem();
 
-        if (contenu.isEmpty() || ciChoisi == null) return;
+        if (contenu.isEmpty() || interlocuteurActuel == null) return;
 
         try {
-            String destinataire = ciChoisi.getPartner().getUsername();
+            String destinataire = interlocuteurActuel;
             Packet paquet = new Packet(Packet.SEND_MESSAGE, new String[]{destinataire, contenu});
             client.envoyerPaquet(paquet);
 
@@ -572,7 +570,19 @@ public class ChatController {
             Packet reponse = client.attendreReponse();
             if (reponse.isSuccess()) {
                 ConversationInfo[] convs = (ConversationInfo[]) reponse.getData();
-                Platform.runLater(() -> listeUtilisateurs.getItems().setAll(convs));
+                Platform.runLater(() -> {
+                    listeUtilisateurs.getItems().setAll(convs);
+                    // Restaurer la sélection pour ne pas perdre la conversation ouverte
+                    if (interlocuteurActuel != null) {
+                        for (int i = 0; i < listeUtilisateurs.getItems().size(); i++) {
+                            if (listeUtilisateurs.getItems().get(i).getPartner()
+                                    .getUsername().equals(interlocuteurActuel)) {
+                                listeUtilisateurs.getSelectionModel().select(i);
+                                break;
+                            }
+                        }
+                    }
+                });
             }
         } catch (Exception e) {
             System.out.println("Impossible de charger les conversations.");
