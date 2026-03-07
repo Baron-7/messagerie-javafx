@@ -246,16 +246,31 @@ public class ClientHandler implements Runnable {
         envoyerAuClient(reponse);
     }
 
-    // Retourne le résumé de toutes les conversations (tous les utilisateurs + dernier message)
+    // Retourne le résumé de toutes les conversations + les utilisateurs en ligne sans historique
     private void gererConversations() {
         Packet reponse = new Packet();
         reponse.setType(Packet.RESPONSE);
         try {
             List<ConversationInfo> conversations = messageService.getConversationSummaries(user);
-            // Marquer qui est actuellement en ligne
+
+            // Marquer qui est actuellement en ligne parmi les conversations existantes
+            java.util.Set<String> partenairesExistants = new java.util.HashSet<>();
             for (ConversationInfo ci : conversations) {
                 ci.setOnline(clientsActifs.containsKey(ci.getPartner().getUsername()));
+                partenairesExistants.add(ci.getPartner().getUsername());
             }
+
+            // Ajouter les utilisateurs en ligne qui n'ont pas encore de conversation avec moi
+            for (ClientHandler handler : clientsActifs.values()) {
+                String nomEnLigne = handler.user.getUsername();
+                if (!nomEnLigne.equals(user.getUsername())
+                        && !partenairesExistants.contains(nomEnLigne)) {
+                    ConversationInfo ci = new ConversationInfo(handler.user, null, null, 0);
+                    ci.setOnline(true);
+                    conversations.add(ci);
+                }
+            }
+
             reponse.setSuccess(true);
             reponse.setData(conversations.toArray(new ConversationInfo[0]));
         } catch (Exception e) {
