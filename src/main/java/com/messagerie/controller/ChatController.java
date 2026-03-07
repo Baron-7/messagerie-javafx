@@ -62,6 +62,10 @@ public class ChatController {
     // Associe chaque ID de message à son label de statut (✓ / ✓✓) pour la mise à jour en bleu
     private final Map<Long, Label> mapStatutLabels = new HashMap<>();
 
+    // Mémorise les fichiers envoyés/reçus par conversation (username -> liste de fichiers)
+    // Nécessaire car les fichiers ne sont pas en base de données
+    private final Map<String, java.util.List<FilePayload>> fichiersParConversation = new HashMap<>();
+
     private static final DateTimeFormatter HEURE_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     // Initialisation automatique par JavaFX : configure la cellule de la liste
@@ -345,6 +349,11 @@ public class ChatController {
 
             client.envoyerPaquet(new Packet(Packet.SEND_FILE, payload));
 
+            // Mémoriser le fichier pour ne pas le perdre lors d'un rechargement d'historique
+            fichiersParConversation
+                .computeIfAbsent(receiver, k -> new java.util.ArrayList<>())
+                .add(payload);
+
             // Affichage immédiat côté expéditeur
             zoneMessages.getChildren().add(creerBulleFichier(payload, true));
             scrollVersLeBas();
@@ -420,6 +429,11 @@ public class ChatController {
 
     // Affiche un fichier reçu (appelé par MessageListener)
     public void afficherFichierRecu(FilePayload fichier) {
+        // Mémoriser le fichier pour ne pas le perdre lors d'un rechargement d'historique
+        fichiersParConversation
+            .computeIfAbsent(fichier.getSenderUsername(), k -> new java.util.ArrayList<>())
+            .add(fichier);
+
         Platform.runLater(() -> {
             if (interlocuteurActuel != null &&
                     fichier.getSenderUsername().equals(interlocuteurActuel)) {
@@ -507,6 +521,15 @@ public class ChatController {
                 listeUtilisateurs.getItems().add(u);
             }
         }
+        // Si l'interlocuteur actuel est en ligne, passer automatiquement ses ✓✓ en bleu
+        if (interlocuteurActuel != null) {
+            for (User u : utilisateurs) {
+                if (u.getUsername().equals(interlocuteurActuel)) {
+                    marquerMessagesLus(interlocuteurActuel);
+                    break;
+                }
+            }
+        }
     }
 
     // Charge la liste des utilisateurs en ligne avec leurs avatars
@@ -547,6 +570,14 @@ public class ChatController {
                         for (Message m : historique) {
                             boolean estMoi = m.getSender().getUsername().equals(moi);
                             zoneMessages.getChildren().add(creerBulleMessage(m, estMoi));
+                        }
+                        // Réafficher les fichiers de cette conversation (non stockés en BD)
+                        java.util.List<FilePayload> fichiers = fichiersParConversation.get(username);
+                        if (fichiers != null) {
+                            for (FilePayload f : fichiers) {
+                                boolean estMoi = f.getSenderUsername().equals(moi);
+                                zoneMessages.getChildren().add(creerBulleFichier(f, estMoi));
+                            }
                         }
                         scrollVersLeBas();
                     });
