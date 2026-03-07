@@ -138,6 +138,9 @@ public class ClientHandler implements Runnable {
             clientsActifs.put(username, this);
             logger.logConnexion(username);
 
+            // Notifier tous les autres clients qu'un nouvel utilisateur est connecté
+            broadcastListeUtilisateurs();
+
             // On livre les messages en attente (RG6)
             List<Message> messagesEnAttente = messageService.deliverPending(u);
             for (Message m : messagesEnAttente) {
@@ -230,12 +233,25 @@ public class ClientHandler implements Runnable {
         Packet reponse = new Packet();
         reponse.setType(Packet.RESPONSE);
         reponse.setSuccess(true);
-        User[] users = clientsActifs.values().stream()
+        reponse.setData(collecterUtilisateursEnLigne());
+        envoyerAuClient(reponse);
+    }
+
+    // Collecte le tableau des utilisateurs actuellement connectés
+    private User[] collecterUtilisateursEnLigne() {
+        return clientsActifs.values().stream()
                 .map(ClientHandler::getUser)
                 .filter(u -> u != null)
                 .toArray(User[]::new);
-        reponse.setData(users);
-        envoyerAuClient(reponse);
+    }
+
+    // Envoie la liste mise à jour à tous les clients connectés (sauf expéditeur optionnel)
+    private void broadcastListeUtilisateurs() {
+        User[] users = collecterUtilisateursEnLigne();
+        Packet notif = new Packet(Packet.USERS_UPDATED, users);
+        for (ClientHandler handler : clientsActifs.values()) {
+            handler.envoyerAuClient(notif);
+        }
     }
 
     // Marque les messages comme LU et notifie l'expéditeur
@@ -319,6 +335,8 @@ public class ClientHandler implements Runnable {
             clientsActifs.remove(user.getUsername());
             logger.logDeconnexion(user.getUsername());
             user = null;
+            // Notifier les autres que cet utilisateur est parti
+            broadcastListeUtilisateurs();
         }
         try {
             socket.close();

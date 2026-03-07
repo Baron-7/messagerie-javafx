@@ -498,6 +498,17 @@ public class ChatController {
         }
     }
 
+    // Met à jour la liste des contacts en ligne (appelé par MessageListener via USERS_UPDATED)
+    public void mettreAJourListeUtilisateurs(User[] utilisateurs) {
+        String moi = client.getCurrentUser().getUsername();
+        listeUtilisateurs.getItems().clear();
+        for (User u : utilisateurs) {
+            if (!u.getUsername().equals(moi)) {
+                listeUtilisateurs.getItems().add(u);
+            }
+        }
+    }
+
     // Charge la liste des utilisateurs en ligne avec leurs avatars
     private void chargerUtilisateursEnLigne() {
         try {

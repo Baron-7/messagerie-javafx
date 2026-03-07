@@ -4,6 +4,7 @@ import com.messagerie.controller.ChatController;
 import com.messagerie.model.FilePayload;
 import com.messagerie.model.Message;
 import com.messagerie.model.Packet;
+import com.messagerie.model.User;
 
 // TODO (Personne B) : écoute les messages venant du serveur dans un thread séparé
 // Quand un message arrive, il notifie le ChatController pour l'afficher
@@ -42,16 +43,21 @@ public class MessageListener implements Runnable {
                     javafx.application.Platform.runLater(() -> {
                         chatController.afficherFichierRecu(fichier);
                     });
+                } else if (Packet.USERS_UPDATED.equals(paquet.getType())) {
+                    // Liste des connectés mise à jour : rafraîchir la sidebar
+                    final User[] users = (User[]) paquet.getData();
+                    javafx.application.Platform.runLater(() ->
+                        chatController.mettreAJourListeUtilisateurs(users));
                 } else if (Packet.MESSAGE_READ.equals(paquet.getType())) {
                     // Le destinataire a lu nos messages : passer les ✓✓ en bleu
-                    String readerUsername = (String) paquet.getData();
+                    final String readerUsername = (String) paquet.getData();
                     javafx.application.Platform.runLater(() ->
                         chatController.marquerMessagesLus(readerUsername));
                 } else if (Packet.TYPING.equals(paquet.getType())) {
                     // Indicateur de frappe
                     String[] typingData = (String[]) paquet.getData();
-                    String senderUsername = typingData[0];
-                    boolean typing = Boolean.parseBoolean(typingData[1]);
+                    final String senderUsername = typingData[0];
+                    final boolean typing = Boolean.parseBoolean(typingData[1]);
                     javafx.application.Platform.runLater(() ->
                         chatController.afficherIndicateurFrappe(senderUsername, typing));
                 } else {
