@@ -110,7 +110,8 @@
                            style="-fx-font-size: 14;
                                   -fx-font-weight: bold;
                                   -fx-text-fill: #d8f3dc;"/>
-                    <Label text="En ligne"
+                    <Label fx:id="labelStatutInterlocuteur"
+                           text=""
                            style="-fx-font-size: 10;
                                   -fx-text-fill: #95d5b2;"/>
                 </VBox>

@@ -47,6 +47,7 @@ public class ChatController {
     @FXML private HBox zoneSaisie;
     @FXML private ListView<ConversationInfo> listeUtilisateurs;
     @FXML private Label labelInterlocuteur;
+    @FXML private Label labelStatutInterlocuteur;
     @FXML private Label labelFrappe;
     @FXML private Button boutonTheme;
     @FXML private ScrollPane scrollPane;
@@ -513,7 +514,19 @@ public class ChatController {
         if (ci != null) {
             interlocuteurActuel = ci.getPartner().getUsername();
             labelInterlocuteur.setText(ci.getPartner().getAvatar() + "  " + ci.getPartner().getUsername());
+            mettreAJourStatutHeader(ci.isOnline());
             chargerHistorique(ci.getPartner().getUsername());
+        }
+    }
+
+    // Met à jour le label "En ligne" / "Hors ligne" dans l'en-tête de conversation
+    private void mettreAJourStatutHeader(boolean enLigne) {
+        if (enLigne) {
+            labelStatutInterlocuteur.setText("🟢 En ligne");
+            labelStatutInterlocuteur.setStyle("-fx-font-size: 10; -fx-text-fill: #95d5b2;");
+        } else {
+            labelStatutInterlocuteur.setText("⚫ Hors ligne");
+            labelStatutInterlocuteur.setStyle("-fx-font-size: 10; -fx-text-fill: #a8a8a8;");
         }
     }
 
@@ -557,9 +570,14 @@ public class ChatController {
         }
         listeUtilisateurs.refresh();
 
-        // Si l'interlocuteur actuel est en ligne, passer ses ✓✓ en bleu automatiquement
-        if (interlocuteurActuel != null && onlineUsernames.contains(interlocuteurActuel)) {
-            marquerMessagesLus(interlocuteurActuel);
+        // Mettre à jour l'en-tête si on a une conversation ouverte
+        if (interlocuteurActuel != null) {
+            boolean interlocuteurEnLigne = onlineUsernames.contains(interlocuteurActuel);
+            mettreAJourStatutHeader(interlocuteurEnLigne);
+            // Si l'interlocuteur vient de se connecter, passer ses ✓✓ en bleu
+            if (interlocuteurEnLigne) {
+                marquerMessagesLus(interlocuteurActuel);
+            }
         }
     }
 
