@@ -5,6 +5,7 @@ import com.messagerie.model.FilePayload;
 import com.messagerie.model.Message;
 import com.messagerie.model.Packet;
 import com.messagerie.model.User;
+import java.awt.Toolkit;
 
 // TODO (Personne B) : écoute les messages venant du serveur dans un thread séparé
 // Quand un message arrive, il notifie le ChatController pour l'afficher
@@ -28,6 +29,7 @@ public class MessageListener implements Runnable {
                 if (Packet.NEW_MESSAGE.equals(paquet.getType())) {
                     // Nouveau message entrant : on l'affiche dans le chat
                     Message message = (Message) paquet.getData();
+                    Toolkit.getDefaultToolkit().beep();
                     javafx.application.Platform.runLater(() -> {
                         chatController.afficherMessage(message);
                     });
@@ -40,6 +42,7 @@ public class MessageListener implements Runnable {
                 } else if (Packet.NEW_FILE.equals(paquet.getType())) {
                     // Fichier reçu : on l'affiche dans le chat
                     FilePayload fichier = (FilePayload) paquet.getData();
+                    Toolkit.getDefaultToolkit().beep();
                     javafx.application.Platform.runLater(() -> {
                         chatController.afficherFichierRecu(fichier);
                     });

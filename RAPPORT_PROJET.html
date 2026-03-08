@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Rapport – Application de Messagerie JavaFX</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #1b4332; background: #fff; font-size: 14px; line-height: 1.7; }
+
+        /* PAGE DE GARDE */
+        .cover {
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            background: linear-gradient(135deg, #1b4332, #2d6a4f);
+            color: white; page-break-after: always;
+            padding: 60px 40px;
+        }
+        .cover .emoji { font-size: 72px; margin-bottom: 20px; }
+        .cover h1 { font-size: 36px; font-weight: 900; margin-bottom: 10px; letter-spacing: 1px; }
+        .cover h2 { font-size: 20px; font-weight: 300; margin-bottom: 40px; color: #95d5b2; }
+        .cover .info-box {
+            background: rgba(255,255,255,0.12); border-radius: 12px;
+            padding: 24px 40px; margin-top: 30px; text-align: left;
+        }
+        .cover .info-box p { margin: 6px 0; font-size: 15px; color: #d8f3dc; }
+        .cover .info-box strong { color: #ffffff; }
+        .cover .badge {
+            background: #40916c; border-radius: 20px; padding: 6px 18px;
+            font-size: 13px; margin: 6px 4px; display: inline-block; color: #d8f3dc;
+        }
+
+        /* MISE EN PAGE GÉNÉRALE */
+        .page { max-width: 900px; margin: 0 auto; padding: 50px 60px; }
+        h1.section { font-size: 26px; color: #1b4332; border-bottom: 3px solid #40916c;
+            padding-bottom: 8px; margin: 40px 0 20px; }
+        h2.sub { font-size: 20px; color: #2d6a4f; margin: 30px 0 12px; }
+        h3.sub2 { font-size: 16px; color: #40916c; margin: 20px 0 8px; }
+        p { margin-bottom: 12px; }
+
+        /* TABLE DES MATIÈRES */
+        .toc { background: #f0f7eb; border-radius: 10px; padding: 28px 36px; margin: 20px 0 40px; }
+        .toc h2 { font-size: 18px; margin-bottom: 16px; color: #1b4332; }
+        .toc ol { padding-left: 20px; }
+        .toc li { margin: 6px 0; font-size: 14px; }
+        .toc a { color: #2d6a4f; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+
+        /* ENCADRÉS */
+        .card {
+            background: #f0f7eb; border-left: 4px solid #40916c;
+            border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+        }
+        .card-blue {
+            background: #e8f4fd; border-left: 4px solid #1a7cde;
+            border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+        }
+        .card-orange {
+            background: #fff8e1; border-left: 4px solid #f59e0b;
+            border-radius: 8px; padding: 16px 20px; margin: 16px 0;
+        }
+
+        /* CODE */
+        pre {
+            background: #1b2d22; color: #d8f3dc; border-radius: 8px;
+            padding: 18px 22px; overflow-x: auto; font-size: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            margin: 16px 0; line-height: 1.5;
+        }
+        code {
+            background: #e9f5e1; color: #1b4332; padding: 2px 6px;
+            border-radius: 4px; font-size: 12px; font-family: 'Consolas', monospace;
+        }
+
+        /* TABLEAUX */
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        th { background: #1b4332; color: #d8f3dc; padding: 10px 14px; text-align: left; font-size: 13px; }
+        td { padding: 9px 14px; border-bottom: 1px solid #c8e6c0; font-size: 13px; }
+        tr:nth-child(even) { background: #f0f7eb; }
+
+        /* LISTES DE FONCTIONNALITÉS */
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+        .feature-item {
+            background: #f0f7eb; border-radius: 8px; padding: 14px 16px;
+            border: 1px solid #c8e6c0;
+        }
+        .feature-item .icon { font-size: 22px; margin-bottom: 6px; }
+        .feature-item h4 { font-size: 14px; color: #1b4332; margin-bottom: 4px; }
+        .feature-item p { font-size: 12px; color: #40916c; margin: 0; }
+
+        /* SCHÉMA ARCHITECTURE */
+        .arch-box {
+            background: #1b2d22; color: #d8f3dc; border-radius: 10px;
+            padding: 24px; font-family: 'Consolas', monospace; font-size: 13px;
+            line-height: 1.8; margin: 16px 0;
+        }
+
+        /* BADGES TECHNOS */
+        .tech-badge {
+            display: inline-block; background: #2d6a4f; color: #d8f3dc;
+            border-radius: 16px; padding: 4px 14px; margin: 4px; font-size: 12px;
+        }
+
+        /* PIED DE PAGE */
+        .footer {
+            text-align: center; padding: 30px; margin-top: 60px;
+            border-top: 2px solid #c8e6c0; color: #52b788; font-size: 12px;
+        }
+
+        /* SAUT DE PAGE POUR IMPRESSION */
+        .page-break { page-break-before: always; padding-top: 30px; }
+
+        /* NUMÉROTATION DES ÉTAPES */
+        .step {
+            display: flex; align-items: flex-start; margin: 14px 0;
+        }
+        .step-num {
+            background: #40916c; color: white; border-radius: 50%;
+            width: 28px; height: 28px; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; font-size: 13px;
+            flex-shrink: 0; margin-right: 14px; margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE DE GARDE
+     ═══════════════════════════════════════════════════════ -->
+<div class="cover">
+    <div class="emoji">🌿</div>
+    <h1>Application de Messagerie</h1>
+    <h2>Nature Chat — Projet JavaFX Client-Serveur</h2>
+    <div>
+        <span class="badge">JavaFX 17</span>
+        <span class="badge">Java Sockets</span>
+        <span class="badge">Hibernate/JPA</span>
+        <span class="badge">MySQL</span>
+        <span class="badge">Maven</span>
+    </div>
+    <div class="info-box">
+        <p><strong>Type de projet :</strong> Application de messagerie instantanée</p>
+        <p><strong>Architecture :</strong> Client-Serveur via Sockets TCP</p>
+        <p><strong>Persistance :</strong> Base de données MySQL avec Hibernate ORM</p>
+        <p><strong>Interface :</strong> JavaFX (FXML + CSS)</p>
+        <p><strong>Année :</strong> 2025 – 2026</p>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONTENU
+     ═══════════════════════════════════════════════════════ -->
+<div class="page">
+
+    <!-- TABLE DES MATIÈRES -->
+    <div class="toc">
+        <h2>📋 Table des matières</h2>
+        <ol>
+            <li><a href="#intro">Introduction et objectifs du projet</a></li>
+            <li><a href="#architecture">Architecture du système</a></li>
+            <li><a href="#techno">Technologies utilisées</a></li>
+            <li><a href="#structure">Structure du projet</a></li>
+            <li><a href="#bdd">Base de données</a></li>
+            <li><a href="#fonctionnalites">Fonctionnalités implémentées</a></li>
+            <li><a href="#communication">Protocole de communication</a></li>
+            <li><a href="#interface">Interface utilisateur</a></li>
+            <li><a href="#demarrage">Guide de démarrage</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ol>
+    </div>
+
+    <!-- ══════════════════════ 1. INTRODUCTION ══════════════════════ -->
+    <h1 class="section" id="intro">1. Introduction et objectifs du projet</h1>
+
+    <p>
+        Ce projet consiste à développer une <strong>application de messagerie instantanée</strong>
+        similaire à WhatsApp, permettant à plusieurs utilisateurs de communiquer en temps réel
+        via une interface graphique moderne. Il a été réalisé en binôme dans le cadre d'un
+        projet de développement logiciel.
+    </p>
+
+    <div class="card">
+        <strong>Objectifs principaux :</strong>
+        <ul style="margin-top:8px; padding-left:20px;">
+            <li>Mettre en œuvre une architecture client-serveur avec des sockets Java</li>
+            <li>Persister les données avec Hibernate/JPA sur une base de données MySQL</li>
+            <li>Concevoir une interface graphique réactive avec JavaFX</li>
+            <li>Gérer la communication asynchrone entre plusieurs clients simultanés</li>
+            <li>Implémenter des fonctionnalités avancées (fichiers, statuts, thème sombre…)</li>
+        </ul>
+    </div>
+
+    <!-- ══════════════════════ 2. ARCHITECTURE ══════════════════════ -->
+    <h1 class="section" id="architecture">2. Architecture du système</h1>
+
+    <p>
+        L'application adopte une architecture <strong>Client-Serveur centralisée</strong>.
+        Un serveur unique gère toutes les connexions et la base de données. Tous les clients
+        se connectent à ce même serveur via des sockets TCP.
+    </p>
+
+    <div class="arch-box">
+┌─────────────────────────┐         ┌─────────────────────────┐
+│    CLIENT (Machine A)   │         │    CLIENT (Machine B)   │
+│  ┌───────────────────┐  │         │  ┌───────────────────┐  │
+│  │   MainApp.java    │  │         │  │   MainApp.java    │  │
+│  │   LoginController │  │         │  │   LoginController │  │
+│  │   ChatController  │  │         │  │   ChatController  │  │
+│  │   MessageListener │  │         │  │   MessageListener │  │
+│  └────────┬──────────┘  │         │  └────────┬──────────┘  │
+└───────────┼─────────────┘         └───────────┼─────────────┘
+            │  Socket TCP (port 5000)            │  Socket TCP
+            └──────────────────┬─────────────────┘
+                               ▼
+            ┌──────────────────────────────────────┐
+            │           SERVEUR (Machine A)        │
+            │  ┌────────────────────────────────┐  │
+            │  │         Server.java            │  │
+            │  │  (ServerSocket port 5000)      │  │
+            │  └──────────────┬─────────────────┘  │
+            │                 │ (1 thread par client)│
+            │  ┌──────────────▼─────────────────┐  │
+            │  │       ClientHandler.java        │  │
+            │  │  (traitement des paquets)       │  │
+            │  └──────────────┬─────────────────┘  │
+            │                 │                     │
+            │  ┌──────────────▼─────────────────┐  │
+            │  │    Services + DAO + Hibernate   │  │
+            │  └──────────────┬─────────────────┘  │
+            │                 │                     │
+            │  ┌──────────────▼─────────────────┐  │
+            │  │      Base de données MySQL      │  │
+            │  └────────────────────────────────┘  │
+            └──────────────────────────────────────┘
+    </div>
+
+    <h2 class="sub">Fonctionnement du multi-threading</h2>
+    <p>
+        Pour chaque client qui se connecte, le serveur crée un nouveau thread
+        (<code>ClientHandler</code>). Cela permet de traiter plusieurs clients simultanément
+        sans blocage. Côté client, un thread dédié (<code>MessageListener</code>) écoute
+        en permanence les paquets entrants du serveur.
+    </p>
+
+    <div class="card-blue">
+        <strong>Principe clé :</strong> Le <code>MessageListener</code> est le <em>seul</em>
+        thread qui lit depuis le socket. Il redistribue ensuite chaque paquet :
+        soit vers l'interface graphique (via <code>Platform.runLater</code>),
+        soit vers une file d'attente (<code>responseQueue</code>) pour les requêtes
+        synchrones (historique, liste des conversations…).
+    </div>
+
+    <!-- ══════════════════════ 3. TECHNOLOGIES ══════════════════════ -->
+    <h1 class="section" id="techno">3. Technologies utilisées</h1>
+
+    <table>
+        <tr>
+            <th>Technologie</th>
+            <th>Version</th>
+            <th>Rôle dans le projet</th>
+        </tr>
+        <tr>
+            <td><strong>Java</strong></td>
+            <td>17</td>
+            <td>Langage principal (serveur + client)</td>
+        </tr>
+        <tr>
+            <td><strong>JavaFX</strong></td>
+            <td>17.0.6</td>
+            <td>Interface graphique (FXML, CSS, animations)</td>
+        </tr>
+        <tr>
+            <td><strong>Hibernate / JPA</strong></td>
+            <td>5.x</td>
+            <td>ORM pour la persistance des données en base</td>
+        </tr>
+        <tr>
+            <td><strong>MySQL</strong></td>
+            <td>8.x</td>
+            <td>Stockage des utilisateurs et messages</td>
+        </tr>
+        <tr>
+            <td><strong>Maven</strong></td>
+            <td>3.x</td>
+            <td>Gestion des dépendances et build du projet</td>
+        </tr>
+        <tr>
+            <td><strong>Java Sockets</strong></td>
+            <td>–</td>
+            <td>Communication réseau TCP client-serveur</td>
+        </tr>
+        <tr>
+            <td><strong>ObjectInputStream / ObjectOutputStream</strong></td>
+            <td>–</td>
+            <td>Sérialisation des objets Java sur le réseau</td>
+        </tr>
+    </table>
+
+    <!-- ══════════════════════ 4. STRUCTURE ══════════════════════ -->
+    <div class="page-break"></div>
+    <h1 class="section" id="structure">4. Structure du projet</h1>
+
+    <pre>messagerie-javafx/
+├── src/main/java/com/messagerie/
+│   ├── MainApp.java                  ← Point d'entrée JavaFX
+│   ├── model/
+│   │   ├── User.java                 ← Entité utilisateur (JPA)
+│   │   ├── Message.java              ← Entité message (JPA)
+│   │   ├── Packet.java               ← Objet échangé sur le réseau
+│   │   ├── FilePayload.java          ← Transport de fichiers
+│   │   ├── ConversationInfo.java     ← Résumé de conversation
+│   │   ├── MessageStatus.java        ← ENVOYE / RECU / LU
+│   │   └── UserStatus.java           ← ONLINE / OFFLINE
+│   ├── dao/
+│   │   ├── UserDAO.java              ← Accès BD utilisateurs
+│   │   └── MessageDAO.java           ← Accès BD messages
+│   ├── service/
+│   │   ├── AuthService.java          ← Inscription / connexion
+│   │   └── MessageService.java       ← Envoi / historique / suppression
+│   ├── server/
+│   │   ├── Server.java               ← Serveur TCP (ServerSocket)
+│   │   └── ClientHandler.java        ← Traitement d'un client (1 thread)
+│   ├── client/
+│   │   ├── Client.java               ← Connexion socket côté client
+│   │   └── MessageListener.java      ← Thread d'écoute des paquets
+│   └── controller/
+│       ├── LoginController.java      ← Écran de connexion
+│       ├── RegisterController.java   ← Écran d'inscription
+│       └── ChatController.java       ← Écran principal de chat
+├── src/main/resources/
+│   ├── fxml/
+│   │   ├── login.fxml
+│   │   ├── register.fxml
+│   │   └── chat.fxml
+│   └── css/
+│       └── style.css
+└── pom.xml                           ← Configuration Maven</pre>
+
+    <!-- ══════════════════════ 5. BASE DE DONNÉES ══════════════════════ -->
+    <h1 class="section" id="bdd">5. Base de données</h1>
+
+    <p>
+        La base de données MySQL est gérée par <strong>Hibernate (ORM)</strong>.
+        Les tables sont créées automatiquement au démarrage du serveur
+        (<code>hbm2ddl.auto = update</code>).
+    </p>
+
+    <h2 class="sub">Table <code>users</code></h2>
+    <table>
+        <tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+        <tr><td>id</td><td>BIGINT (PK)</td><td>Identifiant unique auto-incrémenté</td></tr>
+        <tr><td>username</td><td>VARCHAR (unique)</td><td>Nom d'utilisateur</td></tr>
+        <tr><td>password</td><td>VARCHAR</td><td>Mot de passe (hashé)</td></tr>
+        <tr><td>avatar</td><td>VARCHAR</td><td>Emoji avatar choisi à l'inscription</td></tr>
+        <tr><td>status</td><td>ENUM</td><td>ONLINE / OFFLINE</td></tr>
+    </table>
+
+    <h2 class="sub">Table <code>messages</code></h2>
+    <table>
+        <tr><th>Colonne</th><th>Type</th><th>Description</th></tr>
+        <tr><td>id</td><td>BIGINT (PK)</td><td>Identifiant unique auto-incrémenté</td></tr>
+        <tr><td>sender_id</td><td>BIGINT (FK → users)</td><td>Expéditeur du message</td></tr>
+        <tr><td>receiver_id</td><td>BIGINT (FK → users)</td><td>Destinataire du message</td></tr>
+        <tr><td>contenu</td><td>TEXT</td><td>Contenu textuel du message</td></tr>
+        <tr><td>date_envoi</td><td>DATETIME</td><td>Horodatage de l'envoi</td></tr>
+        <tr><td>statut</td><td>ENUM</td><td>ENVOYE / RECU / LU</td></tr>
+    </table>
+
+    <div class="card-orange">
+        <strong>Note :</strong> Les fichiers échangés sont sauvegardés sur le disque du serveur
+        (dossier <code>uploads/</code>) et ne sont pas stockés en base de données.
+        Les transferts de fichiers sont limités à <strong>10 Mo</strong> par fichier.
+    </div>
+
+    <!-- ══════════════════════ 6. FONCTIONNALITÉS ══════════════════════ -->
+    <div class="page-break"></div>
+    <h1 class="section" id="fonctionnalites">6. Fonctionnalités implémentées</h1>
+
+    <div class="feature-grid">
+        <div class="feature-item">
+            <div class="icon">🔐</div>
+            <h4>Inscription / Connexion</h4>
+            <p>Création de compte avec avatar emoji. Authentification sécurisée.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">💬</div>
+            <h4>Messagerie en temps réel</h4>
+            <p>Envoi et réception instantanés via sockets TCP. Bulles de messages style WhatsApp.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">📎</div>
+            <h4>Envoi de fichiers</h4>
+            <p>Partage de fichiers jusqu'à 10 Mo. Bouton Télécharger pour sauvegarder.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🗑️</div>
+            <h4>Suppression de messages</h4>
+            <p>Clic droit → Supprimer. Seul l'expéditeur peut supprimer ses messages.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">✓✓</div>
+            <h4>Accusés de lecture</h4>
+            <p>✓ envoyé · ✓✓ reçu · ✓✓ bleu lu. Mise à jour en temps réel.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">⌨️</div>
+            <h4>Indicateur de frappe</h4>
+            <p>"X est en train d'écrire..." avec disparition automatique après 2 secondes.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🌙</div>
+            <h4>Mode sombre / clair</h4>
+            <p>Basculement instantané entre le thème vert nature et le thème sombre.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">📋</div>
+            <h4>Historique des conversations</h4>
+            <p>Liste des conversations passées avec aperçu du dernier message, triée par date.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🟢</div>
+            <h4>Statut en ligne</h4>
+            <p>Indicateur 🟢 en ligne / ⚫ hors-ligne mis à jour en temps réel.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">🔔</div>
+            <h4>Badge de non-lus</h4>
+            <p>Compteur de messages non lus par conversation dans la sidebar.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">📦</div>
+            <h4>Messages en attente</h4>
+            <p>Les messages envoyés à un utilisateur hors ligne sont livrés à sa reconnexion.</p>
+        </div>
+        <div class="feature-item">
+            <div class="icon">⚡</div>
+            <h4>Multi-clients simultanés</h4>
+            <p>Le serveur gère plusieurs connexions en parallèle grâce au multi-threading.</p>
+        </div>
+    </div>
+
+    <!-- ══════════════════════ 7. PROTOCOLE ══════════════════════ -->
+    <h1 class="section" id="communication">7. Protocole de communication</h1>
+
+    <p>
+        Tous les échanges réseau utilisent la classe <code>Packet</code>,
+        sérialisée avec <code>ObjectOutputStream</code> / <code>ObjectInputStream</code>.
+        Chaque paquet contient un <em>type</em> (String) et une <em>data</em> (Object sérialisable).
+    </p>
+
+    <h2 class="sub">Types de paquets</h2>
+    <table>
+        <tr><th>Type</th><th>Sens</th><th>Description</th></tr>
+        <tr><td><code>LOGIN</code></td><td>Client → Serveur</td><td>Tentative de connexion</td></tr>
+        <tr><td><code>REGISTER</code></td><td>Client → Serveur</td><td>Inscription d'un nouveau compte</td></tr>
+        <tr><td><code>LOGOUT</code></td><td>Client → Serveur</td><td>Déconnexion propre</td></tr>
+        <tr><td><code>SEND_MESSAGE</code></td><td>Client → Serveur</td><td>Envoi d'un message texte</td></tr>
+        <tr><td><code>NEW_MESSAGE</code></td><td>Serveur → Client</td><td>Push d'un nouveau message reçu</td></tr>
+        <tr><td><code>GET_HISTORY</code></td><td>Client → Serveur</td><td>Demande de l'historique</td></tr>
+        <tr><td><code>DELETE_MESSAGE</code></td><td>Client → Serveur</td><td>Suppression d'un message</td></tr>
+        <tr><td><code>MESSAGE_DELETED</code></td><td>Serveur → Client</td><td>Notification de suppression</td></tr>
+        <tr><td><code>SEND_FILE</code></td><td>Client → Serveur</td><td>Envoi d'un fichier</td></tr>
+        <tr><td><code>NEW_FILE</code></td><td>Serveur → Client</td><td>Push d'un fichier reçu</td></tr>
+        <tr><td><code>TYPING</code></td><td>Bidirectionnel</td><td>Indicateur de frappe</td></tr>
+        <tr><td><code>MARK_READ</code></td><td>Client → Serveur</td><td>Marquer les messages comme lus</td></tr>
+        <tr><td><code>MESSAGE_READ</code></td><td>Serveur → Client</td><td>Notification accusé de lecture</td></tr>
+        <tr><td><code>USERS_UPDATED</code></td><td>Serveur → Client</td><td>Broadcast mise à jour connectés</td></tr>
+        <tr><td><code>GET_CONVERSATIONS</code></td><td>Client → Serveur</td><td>Demande liste des conversations</td></tr>
+        <tr><td><code>RESPONSE</code></td><td>Serveur → Client</td><td>Réponse générique (succès/erreur)</td></tr>
+    </table>
+
+    <h2 class="sub">Exemple de flux — Envoi d'un message</h2>
+    <div class="arch-box">
+Client A                          Serveur                        Client B
+   │                                 │                               │
+   │── SEND_MESSAGE (texte) ────────►│                               │
+   │                                 │ [sauvegarde en BD]            │
+   │                                 │ [statut = ENVOYE]             │
+   │                                 │                               │
+   │                                 │── NEW_MESSAGE ───────────────►│
+   │                                 │ [statut = RECU]               │
+   │                                 │                               │
+   │                           (Client B ouvre la conv.)             │
+   │                                 │◄── MARK_READ ─────────────────│
+   │                                 │ [UPDATE statut = LU en BD]    │
+   │◄── MESSAGE_READ ────────────────│                               │
+   │  (✓✓ passe en bleu)             │                               │
+    </div>
+
+    <!-- ══════════════════════ 8. INTERFACE ══════════════════════ -->
+    <div class="page-break"></div>
+    <h1 class="section" id="interface">8. Interface utilisateur</h1>
+
+    <h2 class="sub">Écran de connexion</h2>
+    <div class="card">
+        L'écran de connexion permet à l'utilisateur de saisir son nom d'utilisateur,
+        son mot de passe, et l'<strong>adresse IP du serveur</strong>.
+        Un lien vers l'écran d'inscription est disponible pour les nouveaux utilisateurs.
+        En cas d'erreur (mauvais mot de passe, serveur inaccessible), un message
+        explicite s'affiche.
+    </div>
+
+    <h2 class="sub">Écran principal de chat</h2>
+    <p>L'écran est divisé en deux zones :</p>
+
+    <table>
+        <tr><th>Zone</th><th>Contenu</th></tr>
+        <tr>
+            <td><strong>Panneau gauche (sidebar)</strong></td>
+            <td>
+                Liste des conversations passées triées par date.
+                Chaque entrée affiche : indicateur en ligne (🟢/⚫),
+                avatar + nom, aperçu du dernier message, badge de non-lus.
+                Bouton 🌙 pour basculer le thème.
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Zone centrale (chat)</strong></td>
+            <td>
+                En-tête avec le nom du contact, zone de messages défilante
+                avec bulles alignées (droite = envoyé, gauche = reçu),
+                indicateur de frappe, zone de saisie avec bouton fichier 📎.
+            </td>
+        </tr>
+    </table>
+
+    <h2 class="sub">Design — Thème Nature</h2>
+    <div class="card">
+        <p>Le design s'inspire de la nature avec une palette de couleurs vertes :</p>
+        <ul style="margin-top:8px; padding-left:20px;">
+            <li>Vert foncé forêt <code>#1b4332</code> — entêtes, boutons principaux</li>
+            <li>Vert moyen <code>#2d6a4f</code> — éléments interactifs</li>
+            <li>Vert clair <code>#b7e4c7</code> — bulles de messages envoyés</li>
+            <li>Blanc naturel <code>#f0f7eb</code> — bulles reçues, fond sidebar</li>
+        </ul>
+    </div>
+
+    <!-- ══════════════════════ 9. DÉMARRAGE ══════════════════════ -->
+    <h1 class="section" id="demarrage">9. Guide de démarrage</h1>
+
+    <h2 class="sub">Prérequis</h2>
+    <p>
+        <span class="tech-badge">JDK 17+</span>
+        <span class="tech-badge">MySQL 8+</span>
+        <span class="tech-badge">Maven 3+</span>
+        <span class="tech-badge">NetBeans ou IntelliJ</span>
+    </p>
+
+    <h2 class="sub">Configuration de la base de données</h2>
+    <pre>-- Créer la base de données MySQL
+CREATE DATABASE messagerie CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Les tables sont créées automatiquement par Hibernate au démarrage</pre>
+
+    <p>Modifier le fichier <code>hibernate.cfg.xml</code> avec vos identifiants MySQL :</p>
+    <pre>&lt;property name="hibernate.connection.url"&gt;
+    jdbc:mysql://localhost:3306/messagerie
+&lt;/property&gt;
+&lt;property name="hibernate.connection.username"&gt;root&lt;/property&gt;
+&lt;property name="hibernate.connection.password"&gt;votre_mot_de_passe&lt;/property&gt;</pre>
+
+    <h2 class="sub">Lancement du projet</h2>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div><strong>Compiler le projet</strong><br/>
+        Dans NetBeans : <code>Shift + F11</code> (Clean &amp; Build)<br/>
+        En terminal : <code>mvn clean package</code></div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">2</div>
+        <div><strong>Démarrer le serveur</strong><br/>
+        Exécuter <code>Server.java</code> (clic droit → Run File dans NetBeans)<br/>
+        Le serveur écoute sur le <strong>port 5000</strong></div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">3</div>
+        <div><strong>Lancer les clients</strong><br/>
+        Exécuter <code>MainApp.java</code> sur chaque machine<br/>
+        Dans le champ "Serveur" : saisir l'<strong>adresse IP de la machine serveur</strong><br/>
+        (ou <code>localhost</code> si on est sur la même machine)</div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">4</div>
+        <div><strong>Créer des comptes et discuter</strong><br/>
+        Chaque utilisateur s'inscrit avec un nom unique et un avatar emoji.<br/>
+        Les conversations s'affichent automatiquement dans la sidebar.</div>
+    </div>
+
+    <div class="card-orange">
+        <strong>⚠️ Important :</strong> Un seul serveur doit tourner. Tous les clients se connectent
+        à ce même serveur. Personne B ne doit <strong>pas</strong> lancer son propre serveur.
+        Les deux machines doivent être sur le <strong>même réseau local (Wi-Fi)</strong>.
+    </div>
+
+    <!-- ══════════════════════ 10. CONCLUSION ══════════════════════ -->
+    <h1 class="section" id="conclusion">10. Conclusion</h1>
+
+    <p>
+        Ce projet nous a permis de mettre en pratique de nombreux concepts fondamentaux
+        du développement logiciel Java :
+    </p>
+
+    <div class="card">
+        <ul style="padding-left:20px; line-height:2;">
+            <li><strong>Architecture Client-Serveur</strong> avec sockets TCP et multi-threading</li>
+            <li><strong>Sérialisation Java</strong> pour le transport d'objets sur le réseau</li>
+            <li><strong>Hibernate / JPA</strong> pour la gestion de la persistance des données</li>
+            <li><strong>JavaFX</strong> pour une interface graphique moderne et réactive</li>
+            <li><strong>Programmation concurrente</strong> (threads, Platform.runLater, files d'attente)</li>
+            <li><strong>Gestion d'état</strong> en temps réel (statuts, accusés de lecture, indicateur de frappe)</li>
+        </ul>
+    </div>
+
+    <p>
+        L'application est fonctionnelle et implémente toutes les fonctionnalités
+        d'une messagerie moderne : envoi de messages et fichiers, historique des conversations,
+        notifications en temps réel, accusés de lecture, indicateur de frappe,
+        mode sombre et statut de présence.
+    </p>
+
+    <div class="footer">
+        <p>🌿 Nature Chat — Application de Messagerie JavaFX · Projet Informatique 2025–2026</p>
+        <p style="margin-top:6px; font-size:11px; color:#74c69d;">
+            JavaFX · Java Sockets · Hibernate · MySQL · Maven
+        </p>
+    </div>
+
+</div>
+</body>
+</html>
